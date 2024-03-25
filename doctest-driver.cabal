@@ -1,0 +1,68 @@
+cabal-version: 3.8
+name: doctest-driver
+version: 0.1.0.0
+synopsis: DocTest driver based on extraction instead of GHCi.
+-- A longer description of the package.
+-- description:
+homepage: https://github.com/ruifengx/doctest-driver
+license: AGPL-3.0-or-later
+license-file: COPYING.md
+author: Ruifeng Xie
+maintainer: ruifengx@outlook.com
+copyright: (c) Ruifeng Xie 2024
+category: Testing
+build-type: Simple
+extra-doc-files: CHANGELOG.md
+
+common base
+  default-language: GHC2021
+  default-extensions:
+    BlockArguments
+    DataKinds
+    DefaultSignatures
+    DeriveAnyClass
+    DerivingStrategies
+    DerivingVia
+    DuplicateRecordFields
+    FunctionalDependencies
+    LambdaCase
+    NoFieldSelectors
+    OverloadedRecordDot
+    PatternSynonyms
+    TypeFamilies
+    ViewPatterns
+
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Widentities
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wmissing-export-lists
+    -Wmissing-home-modules
+    -Wpartial-fields
+    -Wredundant-constraints
+
+library
+  import: base
+  hs-source-dirs: src
+  -- cabal-gild: discover src
+  exposed-modules:
+  build-depends: base ^>=4.18.2.0
+
+executable doctest-driver
+  import: base
+  main-is: Main.hs
+  hs-source-dirs: app
+  build-depends:
+    base ^>=4.18.2.0,
+    doctest-driver,
+
+test-suite doctest-driver-test
+  import: base
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs: test
+  build-depends:
+    base ^>=4.18.2.0,
+    doctest-driver,
