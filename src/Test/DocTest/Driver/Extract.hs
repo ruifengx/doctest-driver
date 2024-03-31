@@ -9,63 +9,74 @@ module Test.DocTest.Driver.Extract
 
 import Control.Arrow ((&&&))
 import Control.Exception (assert)
-import Control.Monad (filterM, forM, unless)
+import Control.Monad (filterM)
 import Data.Bifunctor (first)
 import Data.Char (digitToInt, isDigit, isSpace)
 import Data.Either (fromRight, partitionEithers)
 import Data.Function (on, (&))
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
-import Data.List (foldl', isPrefixOf, isSuffixOf, sortBy, sortOn, uncons)
+import Data.List (foldl', isPrefixOf, sortBy, sortOn, uncons)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
 import Data.Maybe (fromJust, mapMaybe)
-import System.Directory (doesDirectoryExist, listDirectory)
-import System.FilePath ((</>))
 
-import GHC (Ghc, GhcPs)
-import GHC qualified
+import GHC
+  ( GhcPs
+  , HsModule (hsmodDecls, hsmodExt)
+  , ModSummary (ms_hspp_file)
+  , ParsedModule (pm_mod_summary, pm_parsed_source)
+  , XModulePs (hsmodHaddockModHeader)
+  , getLoc
+  , getLocA
+  , leftmost_smallest
+  , ms_mod_name
+  , unLoc
+  , unpackHDSC
+  )
 import GHC.Data.FastString (FastString, unpackFS)
-import GHC.Data.Graph.Directed (flattenSCCs)
-import GHC.Driver.Session (DynFlags (backend, ghcLink, ghcMode), gopt_set)
-import GHC.Hs.Doc (HsDoc, hsDocString)
+import GHC.Hs.Doc
+  ( HsDoc
+  , HsDocString (GeneratedDocString, MultiLineDocString, NestedDocString)
+  , LHsDocStringChunk
+  , hsDocString
+  )
 import GHC.HsToCore.Docs (collectDocs)
-import GHC.Paths qualified as GHC
 import GHC.Types.Name (occNameString)
 import GHC.Types.Name.Reader (rdrNameOcc)
 import GHC.Types.SrcLoc
-  (advanceSrcLoc, generatedSrcSpan, mkRealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
-import GHC.Unit.Module.Graph (filterToposortToModules)
-import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
-import Language.Haskell.Syntax.Binds (HsBindLR (..))
+  ( GenLocated (L)
+  , RealSrcLoc
+  , SrcLoc (RealSrcLoc, UnhelpfulLoc)
+  , advanceSrcLoc
+  , generatedSrcSpan
+  , mkRealSrcLoc
+  , srcLocCol
+  , srcLocFile
+  , srcLocLine
+  , srcSpanStart
+  )
+import Language.Haskell.Syntax.Binds
+  (HsBindLR (FunBind, PatBind, PatSynBind, VarBind, fun_id, var_id), PatSynBind (psb_id))
 import Language.Haskell.Syntax.Decls
-  ( DataDefnCons (..)
-  , FamilyDecl (..)
+  ( DataDefnCons (NewTypeCon)
+  , DocDecl (DocCommentNamed)
+  , FamilyDecl (fdInfo, fdLName)
   , FamilyInfo (DataFamily)
-  , ForeignDecl (..)
-  , HsDecl (..)
+  , ForeignDecl (ForeignExport, ForeignImport, fd_name)
+  , HsDataDefn (dd_cons)
+  , HsDecl (DocD, ForD, TyClD, ValD)
   , LHsDecl
-  , TyClDecl (..)
+  , TyClDecl (ClassDecl, DataDecl, FamDecl, SynDecl, tcdDataDefn, tcdFam, tcdLName)
   )
 import Language.Haskell.Syntax.Extension (IdP, LIdP)
 import Language.Haskell.Syntax.Module.Name (ModuleName (ModuleName))
 
-extractDocTests :: [String] -> FilePath -> IO [Module]
-extractDocTests opts dir = do
-  paths <- filter (".hs" `isSuffixOf`) <$> recursiveListDirectory dir
-  map extractFromModule <$> parseModule opts paths
+import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
 
-parseModule :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
-parseModule opts paths = GHC.runGhc (Just GHC.libdir) do
-  handleOptions opts
-  targets <- mapM (\p -> GHC.guessTarget p Nothing Nothing) paths
-  GHC.setTargets targets
-  modules <- flattenSCCs
-    . filterToposortToModules
-    . flip (GHC.topSortModuleGraph False) Nothing
-    <$> GHC.depanal [] False
-  mapM GHC.parseModule modules
+extractDocTests :: [String] -> FilePath -> IO [Module]
+extractDocTests opts dir = map extractFromModule <$> parseModulesIn opts dir
 
 data Module = Module
   { filePath   :: FilePath
@@ -75,11 +86,11 @@ data Module = Module
   , testCases  :: [DocTests]
   } deriving stock (Show)
 
-type Loc = Either FastString GHC.RealSrcLoc
+type Loc = Either FastString RealSrcLoc
 
-toLoc :: GHC.SrcLoc -> Loc
-toLoc (GHC.RealSrcLoc loc _) = Right loc
-toLoc (GHC.UnhelpfulLoc msg) = Left msg
+toLoc :: SrcLoc -> Loc
+toLoc (RealSrcLoc loc _) = Right loc
+toLoc (UnhelpfulLoc msg) = Left msg
 
 advanceLoc :: String -> Loc -> Loc
 advanceLoc = fmap . flip (foldr (flip advanceSrcLoc))
@@ -103,21 +114,24 @@ data ExampleLine = ExampleLine
   , expectedOutput :: [DocLine]
   } deriving stock (Show)
 
-extractFromModule :: GHC.ParsedModule -> Module
+extractFromModule :: ParsedModule -> Module
 extractFromModule m = Module{ filePath, modulePath, importList, setupCode, testCases }
   where filePath = m.pm_mod_summary.ms_hspp_file
-        modulePath = breakModulePath m.pm_mod_summary.ms_mod.moduleName
+        modulePath = breakModulePath (ms_mod_name m.pm_mod_summary)
         testCases = headerTests <> declTests
         headerTests = m.pm_parsed_source
-          & GHC.unLoc
-          & GHC.hsmodExt
-          & GHC.hsmodHaddockModHeader
-          & maybe [] (docToDocTests . GHC.unLoc)
+          & unLoc
+          & hsmodExt
+          & hsmodHaddockModHeader
+          & maybe [] (docToDocTests . unLoc)
         (importList, setupCode, declTests) = m.pm_parsed_source
-          & GHC.unLoc
-          & GHC.hsmodDecls
+          & unLoc
+          & hsmodDecls
           & extractDocs
         -- TODO: export list
+
+breakModulePath :: ModuleName -> [String]
+breakModulePath (ModuleName path) = splitBy '.' (unpackFS path)
 
 docToDocTests :: HsDoc GhcPs -> [DocTests]
 docToDocTests = linesToCases . docLines . hsDocString
@@ -191,37 +205,37 @@ unindentLines :: [DocLine] -> [DocLine]
 unindentLines theLines = map dropSpace linesWithLoc
   where level = minimum (map getLevel linesWithLoc)
         linesWithLoc = fromRight (map (0, ) theLines) (traverse extractLoc theLines)
-        extractLoc l = fmap (\loc -> (GHC.srcLocCol loc, l)) l.location
+        extractLoc l = fmap (\loc -> (srcLocCol loc, l)) l.location
         getLevel (loc, l) = length (takeWhile (== ' ') l.textLine) + loc
         dropSpace (loc, l) = DocLine (advanceLocBy level l.location) (drop (level - loc) l.textLine)
 
-docLines :: GHC.HsDocString -> [DocLine]
-docLines (GHC.MultiLineDocString _ lcs) = concatMap docChunkLines lcs
-docLines (GHC.NestedDocString _ lc)     = docChunkLines lc
-docLines (GHC.GeneratedDocString c)     = docChunkLines (GHC.L generatedSrcSpan c)
+docLines :: HsDocString -> [DocLine]
+docLines (MultiLineDocString _ lcs) = concatMap docChunkLines lcs
+docLines (NestedDocString _ lc)     = docChunkLines lc
+docLines (GeneratedDocString c)     = docChunkLines (L generatedSrcSpan c)
 
-docChunkLines :: GHC.LHsDocStringChunk -> [DocLine]
-docChunkLines (GHC.L sp docText) = zipWith DocLine locs (dosLines (GHC.unpackHDSC docText))
-  where locs = iterate (advanceLoc "\n") (toLoc (GHC.srcSpanStart sp))
+docChunkLines :: LHsDocStringChunk -> [DocLine]
+docChunkLines (L sp docText) = zipWith DocLine locs (dosLines (unpackHDSC docText))
+  where locs = iterate (advanceLoc "\n") (toLoc (srcSpanStart sp))
 
 extractDocs :: [LHsDecl GhcPs] -> ([DocLine], [DocTests], [DocTests])
 extractDocs decls = (sortOn (.textLine) importList, setupBlocks, concatMap process rest)
   where process (decl, docs) = wrap allTests
-          where name = declName (GHC.unLoc decl)
-                loc = toLoc (GHC.srcSpanStart (GHC.getLocA decl))
+          where name = declName (unLoc decl)
+                loc = toLoc (srcSpanStart (getLocA decl))
                 wrap tests
                   | null tests = []
                   | Nothing <- name = tests
                   | Just nm <- name = [Group nm loc tests]
                 allTests = concatMap docToDocTests (innerDocs <> docs)
                 innerDocs = everything (++) (mkQ [] pure) decl
-        groupedDecls = collectDocs (sortBy (GHC.leftmost_smallest `on` GHC.getLocA) decls)
+        groupedDecls = collectDocs (sortBy (leftmost_smallest `on` getLocA) decls)
         -- separate "setup" comments from other ordinary comments
         (setup, rest) = partitionEithers (map go groupedDecls)
-          where go (GHC.L _ (DocD _ (GHC.DocCommentNamed name doc)), docs)
+          where go (L _ (DocD _ (DocCommentNamed name doc)), docs)
                   | "setup" `isPrefixOf` name = assert (null docs) Left ((name, loc), tests)
-                  where loc = toLoc (GHC.srcSpanStart (GHC.getLoc doc))
-                        tests = docToDocTests (GHC.unLoc doc)
+                  where loc = toLoc (srcSpanStart (getLoc doc))
+                        tests = docToDocTests (unLoc doc)
                 go decl = Right decl
         -- sort setup blocks according to their name
         sortedSetup = sortOn (naturalOrdered . fst . fst) setup
@@ -239,7 +253,7 @@ processSetup = traverse go
           Nothing         -> ([], True)
 
 lIdString :: LIdP GhcPs -> String
-lIdString = idString . GHC.unLoc
+lIdString = idString . unLoc
 
 idString :: IdP GhcPs -> String
 idString = occNameString . rdrNameOcc
@@ -264,36 +278,9 @@ declName (ForD _ decl) = case decl of
   ForeignExport{ fd_name } -> Just (lIdString fd_name)
 declName _ = Nothing
 
-breakModulePath :: ModuleName -> [String]
-breakModulePath (ModuleName path) = splitBy '.' (unpackFS path)
-
 splitBy :: Eq a => a -> [a] -> [[a]]
 splitBy sep xs = s : maybe [] (splitBy sep . snd) (uncons rest)
   where (s, rest) = break (sep ==) xs
-
-handleOptions :: [String] -> Ghc ()
-handleOptions opts = do
-  logger <- GHC.getLogger
-  flags <- setFlags <$> GHC.getSessionDynFlags
-  (flags', unknown, _warnings) <- GHC.parseDynamicFlags logger flags (map GHC.noLoc opts)
-  unless (null unknown) do
-    let msg = "unknown flags: " <> unwords (map show unknown)
-    throwGhcException (UsageError msg)
-  GHC.setSessionDynFlags flags'
-
-setFlags :: DynFlags -> DynFlags
-setFlags flags = (gopt_set flags GHC.Opt_Haddock)
-  { backend = GHC.noBackend
-  , ghcMode = GHC.CompManager
-  , ghcLink = GHC.NoLink
-  }
-
-recursiveListDirectory :: FilePath -> IO [FilePath]
-recursiveListDirectory dir = do
-  children <- map (dir </>) <$> listDirectory dir
-  concat <$> forM children \child -> do
-    isDir <- doesDirectoryExist child
-    if isDir then recursiveListDirectory child else pure [child]
 
 dosLines :: String -> [String]
 dosLines "" = []

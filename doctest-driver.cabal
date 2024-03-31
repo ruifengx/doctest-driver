@@ -50,6 +50,7 @@ library
   exposed-modules:
     Test.DocTest.Driver.Extract
     Test.DocTest.Driver.Extract.Dump
+    Test.DocTest.Driver.Extract.GHC
 
   build-depends:
     base ^>=4.18.2.0,
