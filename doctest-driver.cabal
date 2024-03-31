@@ -48,6 +48,7 @@ library
   hs-source-dirs: src
   -- cabal-gild: discover src
   exposed-modules:
+    Test.DocTest.Driver.CodeGen
     Test.DocTest.Driver.Extract
     Test.DocTest.Driver.Extract.Dump
     Test.DocTest.Driver.Extract.GHC
@@ -59,6 +60,7 @@ library
     filepath ^>=1.4.200.1,
     ghc ^>=9.6.4,
     ghc-paths ^>=0.1.0.12,
+    mtl ^>=2.3.1,
     syb ^>=0.7.2.4,
 
 executable doctest-driver

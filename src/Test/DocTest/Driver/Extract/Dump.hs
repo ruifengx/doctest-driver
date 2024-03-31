@@ -1,45 +1,34 @@
 module Test.DocTest.Driver.Extract.Dump
   ( Dump (dump)
-  , stringDump
-  , printDump
-  , hPrintDump
+  , stringDoc
+  , printDoc
+  , hPrintDoc
   ) where
 
 import Prelude hiding ((<>))
 
 import Test.DocTest.Driver.Extract
 
-import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
-import GHC.Utils.Ppr
-  ( Doc
-  , Mode (PageMode)
-  , empty
-  , ftext
-  , nest
-  , printDoc
-  , renderStyle
-  , style
-  , text
-  , vcat
-  , ($$)
-  , (<+>)
-  , (<>)
-  )
+import Data.List.NonEmpty (NonEmpty, toList)
 import System.IO (Handle, stdout)
+
+import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
+import GHC.Utils.Ppr (Doc, Mode (PageMode), empty, ftext, nest, text, vcat, ($$), (<+>), (<>))
+import GHC.Utils.Ppr qualified as P (printDoc, renderStyle, style)
 
 class Dump a where
   dump :: a -> Doc
   dumpList :: [a] -> Doc
   dumpList xs = vcat (map (\x -> text "- " <> nest 2 (dump x)) xs)
 
-hPrintDump :: Dump a => Handle -> a -> IO ()
-hPrintDump h = printDoc (PageMode False) 100 h . dump
+hPrintDoc :: Handle -> Doc -> IO ()
+hPrintDoc = P.printDoc (PageMode False) 100
 
-printDump :: Dump a => a -> IO ()
-printDump = hPrintDump stdout
+printDoc :: Doc -> IO ()
+printDoc = hPrintDoc stdout
 
-stringDump :: Dump a => a -> String
-stringDump = renderStyle style . dump
+stringDoc :: Doc -> String
+stringDoc = P.renderStyle P.style
 
 dumpTitleList :: Dump a => Bool -> Doc -> [a] -> Doc
 dumpTitleList skipEmpty title xs
@@ -65,6 +54,9 @@ instance Dump Char where
 
 instance Dump a => Dump [a] where
   dump = dumpList
+
+instance Dump a => Dump (NonEmpty a) where
+  dump = dumpList . toList
 
 instance Dump DocLine where
   dump l = dump l.location <> text ": " <> dump l.textLine
