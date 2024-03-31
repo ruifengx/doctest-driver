@@ -11,7 +11,7 @@ import Control.Arrow ((&&&))
 import Control.Exception (assert)
 import Control.Monad (filterM)
 import Data.Char (isSpace)
-import Data.Either (fromRight, partitionEithers)
+import Data.Either (partitionEithers)
 import Data.Function (on, (&))
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
@@ -175,13 +175,15 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
           where mkExampleLine (x :| rest) =
                   assert (fst x == Example)
                   assert (all ((== Other) . fst) rest)
-                  ExampleLine{ programLine, expectedOutput }
+                  (expectedOutput, programLine)
                   where programLine = trimExample (snd x)
                         expectedOutput = unindentLines (map snd rest)
                 -- one example optionally followed by several responses
                 assocExampleLine l r = l == Example && r == Other
                 groupExamples = NonEmpty.groupBy (assocExampleLine `on` fst)
-                collectExample = TestExample . map mkExampleLine . groupExamples
+                collectExample = TestExample . unindent . map mkExampleLine . groupExamples
+                -- each example group is unindented separately
+                unindent = map (uncurry (flip ExampleLine)) . getCompose . unindentLines . Compose
         -- other lines are simply ignored
         toTestCase _                       = Nothing
 
@@ -194,20 +196,15 @@ trimLeft :: DocLine -> DocLine
 trimLeft l = DocLine (advanceLoc left l.location) rest
   where (left, rest) = span (== ' ') l.textLine
 
-trimString :: String -> DocLine -> DocLine
-trimString p = trimLeft . fromJust . stripPrefix p . trimLeft
-
 trimProperty, trimExample :: DocLine -> DocLine
-trimProperty = trimString "prop>"
-trimExample = trimString ">>>"
+trimProperty = trimLeft . fromJust . stripPrefix "prop>" . trimLeft
+trimExample = fromJust . stripPrefix ">>>" . trimLeft
 
-unindentLines :: [DocLine] -> [DocLine]
-unindentLines theLines = map dropSpace linesWithLoc
-  where level = minimum (map getLevel linesWithLoc)
-        linesWithLoc = fromRight (map (0, ) theLines) (traverse extractLoc theLines)
-        extractLoc l = fmap (\loc -> (srcLocCol loc, l)) l.location
-        getLevel (loc, l) = length (takeWhile (== ' ') l.textLine) + loc
-        dropSpace (loc, l) = DocLine (advanceLocBy level l.location) (drop (level - loc) l.textLine)
+unindentLines :: Traversable t => t DocLine -> t DocLine
+unindentLines theLines = fmap dropSpace theLines
+  where level = minimum (fmap getLevel theLines)
+        getLevel l = length (takeWhile (== ' ') l.textLine)
+        dropSpace l = DocLine (advanceLocBy level l.location) (drop level l.textLine)
 
 docLines :: HsDocString -> [DocLine]
 docLines (MultiLineDocString _ lcs) = concatMap docChunkLines lcs
