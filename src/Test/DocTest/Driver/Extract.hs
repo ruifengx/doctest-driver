@@ -18,8 +18,8 @@ import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
 import Data.List (isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
-import Data.List.NonEmpty (NonEmpty ((:|)))
-import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
+import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
+import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, toList)
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 
 import GHC
@@ -102,7 +102,7 @@ advanceLocBy n = fmap (\loc -> mkRealSrcLoc (srcLocFile loc) (srcLocLine loc) (s
 data DocTests
   = Group String Loc [DocTests]
   | TestProperty DocLine
-  | TestExample [ExampleLine]
+  | TestExample (NonEmpty ExampleLine)
   deriving stock (Show)
 
 data DocLine = DocLine
@@ -181,10 +181,10 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
                         expectedOutput = unindentLines (map snd rest)
                 -- one example optionally followed by several responses
                 assocExampleLine l r = l == Example && r == Other
-                groupExamples = NonEmpty.groupBy (assocExampleLine `on` fst)
-                collectExample = TestExample . unindent . map mkExampleLine . groupExamples
+                groupExamples = fromJust . nonEmpty . NonEmpty.groupBy (assocExampleLine `on` fst)
+                collectExample = TestExample . unindent . fmap mkExampleLine . groupExamples
                 -- each example group is unindented separately
-                unindent = map (uncurry (flip ExampleLine)) . getCompose . unindentLines . Compose
+                unindent = fmap (uncurry (flip ExampleLine)) . getCompose . unindentLines . Compose
         -- other lines are simply ignored
         toTestCase _                       = Nothing
 
@@ -244,9 +244,9 @@ extractDocs decls = (sortOn (.textLine) importList, setupBlocks, concatMap proce
 
 processSetup :: [DocTests] -> ([DocLine], [DocTests])
 processSetup = second catMaybes . traverse go
-  where go (TestExample ls) = mkExample <$> filterM dropImport ls
+  where go (TestExample ls) = mkExample <$> filterM dropImport (NonEmpty.toList ls)
         go testCases        = pure (Just testCases)
-        mkExample ls = if null ls then Nothing else Just (TestExample ls)
+        mkExample = fmap TestExample . nonEmpty
         dropImport l = case stripPrefix "import" (trimLeft l.programLine) of
           Just modulePath -> ([trimLeft modulePath], False)
           Nothing         -> ([], True)
