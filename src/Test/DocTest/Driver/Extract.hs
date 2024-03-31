@@ -10,6 +10,7 @@ module Test.DocTest.Driver.Extract
 import Control.Arrow ((&&&))
 import Control.Exception (assert)
 import Control.Monad (filterM)
+import Data.Bifunctor (second)
 import Data.Char (isSpace)
 import Data.Either (partitionEithers)
 import Data.Function (on, (&))
@@ -19,7 +20,7 @@ import Data.List (isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
-import Data.Maybe (fromJust, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, mapMaybe)
 
 import GHC
   ( GhcPs
@@ -242,9 +243,10 @@ extractDocs decls = (sortOn (.textLine) importList, setupBlocks, concatMap proce
         mkGroup ((name, loc), tests) = if null tests then Nothing else Just (Group name loc tests)
 
 processSetup :: [DocTests] -> ([DocLine], [DocTests])
-processSetup = traverse go
-  where go (TestExample ls) = TestExample <$> filterM dropImport ls
-        go testCases        = pure testCases
+processSetup = second catMaybes . traverse go
+  where go (TestExample ls) = mkExample <$> filterM dropImport ls
+        go testCases        = pure (Just testCases)
+        mkExample ls = if null ls then Nothing else Just (TestExample ls)
         dropImport l = case stripPrefix "import" (trimLeft l.programLine) of
           Just modulePath -> ([trimLeft modulePath], False)
           Nothing         -> ([], True)
