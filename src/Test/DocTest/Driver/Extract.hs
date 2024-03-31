@@ -5,7 +5,6 @@ module Test.DocTest.Driver.Extract
   , ExampleLine (..)
   , Loc
   , extractDocTests
-  , Dump (dump)
   ) where
 
 import Control.Arrow ((&&&))
@@ -38,8 +37,6 @@ import GHC.Types.Name.Reader (rdrNameOcc)
 import GHC.Types.SrcLoc
   (advanceSrcLoc, generatedSrcSpan, mkRealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
 import GHC.Unit.Module.Graph (filterToposortToModules)
-import GHC.Utils.Outputable (IsLine (ftext), SDoc, nest, text, vcat, ($$), (<+>))
-import GHC.Utils.Outputable qualified as P (empty, (<>))
 import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
 import Language.Haskell.Syntax.Binds (HsBindLR (..))
 import Language.Haskell.Syntax.Decls
@@ -105,57 +102,6 @@ data ExampleLine = ExampleLine
   { programLine    :: DocLine
   , expectedOutput :: [DocLine]
   } deriving stock (Show)
-
-class Dump a where
-  dump :: a -> SDoc
-  dumpList :: [a] -> SDoc
-  dumpList xs = vcat (map (\x -> text "- " P.<> nest 2 (dump x)) xs)
-
-dumpTitleList :: Dump a => Bool -> SDoc -> [a] -> SDoc
-dumpTitleList skipEmpty title xs
-  | null xs, skipEmpty = P.empty
-  | null xs = title <+> text "[]"
-  | otherwise = title $$ dump xs
-
-instance Dump Module where
-  dump m = vcat
-    [ text "filePath:" <+> dump m.filePath
-    , dumpTitleList False (text "modulePath:") m.modulePath
-    , dumpTitleList False (text "importList:") m.importList
-    , dumpTitleList False (text "setupCode:") m.setupCode
-    , dumpTitleList False (text "testCases:") m.testCases
-    ]
-
-instance Dump Int where
-  dump = text . show
-
-instance Dump Char where
-  dump = text . show
-  dumpList = text . show
-
-instance Dump a => Dump [a] where
-  dump = dumpList
-
-instance Dump DocLine where
-  dump l = dump l.location P.<> text ": " P.<> dump l.textLine
-
-instance Dump Loc where
-  dump = either ftext dump
-
-instance Dump GHC.RealSrcLoc where
-  dump l = ftext (srcLocFile l)
-    P.<> text ":" P.<> dump (srcLocLine l)
-    P.<> text ":" P.<> dump (srcLocCol l)
-
-instance Dump DocTests where
-  dump (Group name loc tests)
-    = text "group" <+> dump name P.<> text "," <+> dump loc P.<> text ":" $$ dump tests
-  dump (TestExample line) = text "example:" $$ dump line
-  dump (TestProperty prop) = text "property:" $$ dump prop
-
-instance Dump ExampleLine where
-  dump l = text "program:" <+> dump l.programLine
-    $$ dumpTitleList True (text "expected:") l.expectedOutput
 
 extractFromModule :: GHC.ParsedModule -> Module
 extractFromModule m = Module{ filePath, modulePath, importList, setupCode, testCases }

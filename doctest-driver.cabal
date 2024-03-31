@@ -47,7 +47,10 @@ library
   import: base
   hs-source-dirs: src
   -- cabal-gild: discover src
-  exposed-modules: Test.DocTest.Driver.Extract
+  exposed-modules:
+    Test.DocTest.Driver.Extract
+    Test.DocTest.Driver.Extract.Dump
+
   build-depends:
     base ^>=4.18.2.0,
     directory ^>=1.3.8.1,
@@ -63,7 +66,6 @@ executable doctest-driver
   build-depends:
     base ^>=4.18.2.0,
     doctest-driver,
-    ghc ^>=9.6.4,
 
 test-suite doctest-driver-test
   import: base
