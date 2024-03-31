@@ -10,38 +10,38 @@ import Prelude hiding ((<>))
 import Test.DocTest.Driver.Extract
 
 import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
-import GHC.Utils.Outputable
-  ( SDoc
-  , defaultSDocContext
+import GHC.Utils.Ppr
+  ( Doc
+  , Mode (PageMode)
   , empty
   , ftext
   , nest
-  , printSDoc
-  , renderWithContext
+  , printDoc
+  , renderStyle
+  , style
   , text
   , vcat
   , ($$)
   , (<+>)
   , (<>)
   )
-import GHC.Utils.Ppr (Mode (PageMode))
 import System.IO (Handle, stdout)
 
 class Dump a where
-  dump :: a -> SDoc
-  dumpList :: [a] -> SDoc
+  dump :: a -> Doc
+  dumpList :: [a] -> Doc
   dumpList xs = vcat (map (\x -> text "- " <> nest 2 (dump x)) xs)
 
 hPrintDump :: Dump a => Handle -> a -> IO ()
-hPrintDump h = printSDoc defaultSDocContext (PageMode False) h . dump
+hPrintDump h = printDoc (PageMode False) 100 h . dump
 
 printDump :: Dump a => a -> IO ()
 printDump = hPrintDump stdout
 
 stringDump :: Dump a => a -> String
-stringDump = renderWithContext defaultSDocContext . dump
+stringDump = renderStyle style . dump
 
-dumpTitleList :: Dump a => Bool -> SDoc -> [a] -> SDoc
+dumpTitleList :: Dump a => Bool -> Doc -> [a] -> Doc
 dumpTitleList skipEmpty title xs
   | null xs, skipEmpty = empty
   | null xs = title <+> text "[]"
