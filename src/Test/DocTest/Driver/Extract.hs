@@ -10,13 +10,12 @@ module Test.DocTest.Driver.Extract
 import Control.Arrow ((&&&))
 import Control.Exception (assert)
 import Control.Monad (filterM)
-import Data.Bifunctor (first)
-import Data.Char (digitToInt, isDigit, isSpace)
+import Data.Char (isSpace)
 import Data.Either (fromRight, partitionEithers)
 import Data.Function (on, (&))
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
-import Data.List (foldl', isPrefixOf, sortBy, sortOn, uncons)
+import Data.List (isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
@@ -74,6 +73,7 @@ import Language.Haskell.Syntax.Extension (IdP, LIdP)
 import Language.Haskell.Syntax.Module.Name (ModuleName (ModuleName))
 
 import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
+import Test.DocTest.Driver.Utils (dosLines, naturalOrdered, splitBy)
 
 extractDocTests :: [String] -> FilePath -> IO [Module]
 extractDocTests opts dir = map extractFromModule <$> parseModulesIn opts dir
@@ -277,30 +277,3 @@ declName (ForD _ decl) = case decl of
   ForeignImport{ fd_name } -> Just (lIdString fd_name)
   ForeignExport{ fd_name } -> Just (lIdString fd_name)
 declName _ = Nothing
-
-splitBy :: Eq a => a -> [a] -> [[a]]
-splitBy sep xs = s : maybe [] (splitBy sep . snd) (uncons rest)
-  where (s, rest) = break (sep ==) xs
-
-dosLines :: String -> [String]
-dosLines "" = []
-dosLines s  = start : dosLines rest
-  where (start, rest) = breakDosLine s
-
-breakDosLine :: String -> (String, String)
-breakDosLine ""                = ("", "")
-breakDosLine "\r"              = ("", "")
-breakDosLine ('\n' : s)        = ("", s)
-breakDosLine ('\r' : '\n' : s) = ("", s)
-breakDosLine (c : s)           = first (c :) (breakDosLine s)
-
-newtype NaturalOrderString = NatOrd [Either Integer String]
-  deriving stock (Eq, Ord)
-
-naturalOrdered :: String -> NaturalOrderString
-naturalOrdered = NatOrd . map go . NonEmpty.groupBy ((==) `on` isDigit)
-  where go (x :| xs)
-          | x == '0' = if null xs then Left 0 else Right (x : xs)
-          | isDigit x = Left (foldl' growInt 0 (x : xs))
-          | otherwise = Right (x : xs)
-        growInt r y = r * 10 + fromIntegral (digitToInt y)

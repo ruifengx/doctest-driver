@@ -51,6 +51,7 @@ library
     Test.DocTest.Driver.Extract
     Test.DocTest.Driver.Extract.Dump
     Test.DocTest.Driver.Extract.GHC
+    Test.DocTest.Driver.Utils
 
   build-depends:
     base ^>=4.18.2.0,
