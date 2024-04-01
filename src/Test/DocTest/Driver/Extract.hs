@@ -16,7 +16,7 @@ import Data.Either (partitionEithers)
 import Data.Function (on, (&))
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
-import Data.List (isPrefixOf, sortBy, sortOn)
+import Data.List (intercalate, isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, toList)
@@ -24,7 +24,6 @@ import Data.Maybe (catMaybes, fromJust, mapMaybe)
 
 import GHC
   ( GhcPs
-  , HsModule (hsmodDecls, hsmodExt)
   , ModSummary (ms_hspp_file)
   , ParsedModule (pm_mod_summary, pm_parsed_source)
   , XModulePs (hsmodHaddockModHeader)
@@ -57,8 +56,12 @@ import GHC.Types.SrcLoc
   , srcLocLine
   , srcSpanStart
   )
+import Language.Haskell.Syntax (HsModule (hsmodDecls, hsmodExt))
 import Language.Haskell.Syntax.Binds
-  (HsBindLR (FunBind, PatBind, PatSynBind, VarBind, fun_id, var_id), PatSynBind (psb_id))
+  ( HsBindLR (FunBind, PatBind, PatSynBind, VarBind, fun_id, var_id)
+  , PatSynBind (psb_id)
+  , Sig (PatSynSig, TypeSig)
+  )
 import Language.Haskell.Syntax.Decls
   ( DataDefnCons (NewTypeCon)
   , DocDecl (DocCommentNamed)
@@ -66,7 +69,7 @@ import Language.Haskell.Syntax.Decls
   , FamilyInfo (DataFamily)
   , ForeignDecl (ForeignExport, ForeignImport, fd_name)
   , HsDataDefn (dd_cons)
-  , HsDecl (DocD, ForD, TyClD, ValD)
+  , HsDecl (DocD, ForD, SigD, TyClD, ValD)
   , LHsDecl
   , TyClDecl (ClassDecl, DataDecl, FamDecl, SynDecl, tcdDataDefn, tcdFam, tcdLName)
   )
@@ -272,6 +275,10 @@ declName (ValD _ bind) = case bind of
   VarBind{ var_id } -> Just (idString var_id)
   PatBind{}         -> Just "pattern binding"
   PatSynBind _ pat  -> Just ("pattern " <> lIdString pat.psb_id)
+declName (SigD _ sig) = case sig of
+  TypeSig   _ names _ -> Just (intercalate ", " (map lIdString names))
+  PatSynSig _ names _ -> Just (intercalate ", " (map (\nm -> "pattern " <> lIdString nm) names))
+  _                   -> Nothing
 declName (ForD _ decl) = case decl of
   ForeignImport{ fd_name } -> Just (lIdString fd_name)
   ForeignExport{ fd_name } -> Just (lIdString fd_name)
