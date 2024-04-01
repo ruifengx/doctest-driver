@@ -169,7 +169,11 @@ genProperty propLine = header $$ nest 2 (lineDoc propLine)
 genMainDoc :: [Module] -> Doc
 genMainDoc ms = vcat
   [ "module Main (main) where"
+  , emptyText
+  , "import Test.Hspec"
+  , emptyText
   , importList
+  , emptyText
   , "main :: IO ()"
   , "main = hspec $ do"
   , nest 2 testList
