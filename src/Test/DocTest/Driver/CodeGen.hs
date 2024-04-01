@@ -1,5 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Test.DocTest.Driver.CodeGen (genModuleDoc, codeGen, codeGenSingle) where
+module Test.DocTest.Driver.CodeGen
+  ( Doc
+  , runDoc
+  , genModuleDoc
+  , codeGen
+  , codeGenSingle
+  ) where
 
 import Test.DocTest.Driver.Extract
   ( DocLine (location, textLine)
@@ -16,7 +22,6 @@ import Control.Monad.Reader (MonadReader (ask), ReaderT, runReaderT)
 import Control.Monad.State (MonadState (get, put), State, evalState)
 import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWriterT)
 import Data.Coerce (coerce)
-import Data.Foldable (traverse_)
 import Data.List (intercalate)
 import Data.List.NonEmpty qualified as NonEmpty (head)
 import Data.Monoid (Ap (Ap))
@@ -108,8 +113,8 @@ locDoc prefix = either ftext (realLocDoc prefix)
 locLine :: Loc -> String
 locLine = either unpackFS (\l -> "line " <> show (srcLocLine l))
 
-genModuleDoc :: Bool -> Module -> P.Doc
-genModuleDoc produceLoc m = runDoc produceLoc $ vcat
+genModuleDoc :: Module -> Doc
+genModuleDoc m = vcat
   [ "module DocTests." <> text modulePath <> " (spec) where"
   , emptyText
   , "import Test.Hspec"
@@ -161,11 +166,35 @@ genProperty propLine = header $$ nest 2 (lineDoc propLine)
   where header = "prop " <> textShow line <> " $"
         line = locLine propLine.location
 
-codeGenSingle :: FilePath -> Module -> IO ()
-codeGenSingle root m = do
-  let path = root </> foldr (</>) "" m.modulePath <> ".hs"
-  createDirectoryIfMissing True (takeDirectory path)
-  withFile path WriteMode \hFile -> hPrintDoc hFile (genModuleDoc True m)
+genMainDoc :: [Module] -> Doc
+genMainDoc ms = vcat
+  [ "module Main (main) where"
+  , importList
+  , "main :: IO ()"
+  , "main = hspec $ do"
+  , nest 2 testList
+  ]
+  where importList = vcat (map ("import qualified " <>) modulePaths)
+        testList = vcat (map (<> ".spec") modulePaths)
+        modulePaths = map modulePath ms
+        modulePath m = "DocTests." <> text (intercalate "." m.modulePath)
 
-codeGen :: FilePath -> [Module] -> IO ()
-codeGen = traverse_ . codeGenSingle
+writeToFile :: FilePath -> Doc -> IO ()
+writeToFile path doc = do
+  createDirectoryIfMissing True (takeDirectory path)
+  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc True doc)
+
+codeGenSingle :: FilePath -> Module -> IO FilePath
+codeGenSingle root m = do
+  let modulePath = "DocTests" : m.modulePath
+  let path = root </> foldr (</>) "" modulePath <> ".hs"
+  writeToFile path (genModuleDoc m)
+  pure (intercalate "." modulePath)
+
+codeGenMain :: FilePath -> [Module] -> IO ()
+codeGenMain root ms = writeToFile (root </> "Main.hs") (genMainDoc ms)
+
+codeGen :: FilePath -> [Module] -> IO [FilePath]
+codeGen root ms = do
+  codeGenMain root ms
+  traverse (codeGenSingle root) ms

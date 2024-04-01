@@ -17,9 +17,9 @@ import GHC.Driver.Session (DynFlags (backend, ghcLink, ghcMode), gopt_set)
 import GHC.Unit.Module.Graph (filterToposortToModules)
 import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
 
-parseModulesIn :: [String] -> FilePath -> IO [GHC.ParsedModule]
+parseModulesIn :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
 parseModulesIn opts dir = do
-  paths <- recursiveListDirectory dir
+  paths <- concat <$> traverse recursiveListDirectory dir
   parseModules opts (filter (".hs" `isSuffixOf`) paths)
 
 parseModules :: [String] -> [FilePath] -> IO [GHC.ParsedModule]

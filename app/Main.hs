@@ -1,20 +1,23 @@
 module Main (main) where
 
+import Data.Foldable (traverse_)
 import System.Environment (getArgs)
-import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr)
 
 import Test.DocTest.Driver.CodeGen (codeGen)
 import Test.DocTest.Driver.Extract (extractDocTests)
+import Test.DocTest.Driver.Extract.Dump (dump, printDoc)
 
 main :: IO ()
 main = do
   rawArgs <- getArgs
   case processArgs rawArgs of
-    Nothing   -> hPutStrLn stderr "invalid arguments" *> exitFailure
-    Just args -> do
-      tests <- concat <$> traverse (extractDocTests args.ghcOptions) args.sourceDirs
-      codeGen args.targetDir tests
+    Left sourceDirs -> do
+      tests <- extractDocTests [] sourceDirs
+      printDoc (dump tests)
+    Right args -> do
+      tests <- extractDocTests args.ghcOptions args.sourceDirs
+      modulePaths <- codeGen args.targetDir tests
+      traverse_ putStrLn modulePaths
 
 data Args = Args
   { targetDir  :: FilePath
@@ -22,9 +25,8 @@ data Args = Args
   , ghcOptions :: [String]
   }
 
-processArgs :: [String] -> Maybe Args
-processArgs [] = Nothing
-processArgs (targetDir : rest)
-  | _ : ghcOptions <- opts = Just Args{ targetDir, sourceDirs, ghcOptions }
-  | otherwise = Nothing
-  where (sourceDirs, opts) = break (== "--") rest
+processArgs :: [String] -> Either [FilePath] Args
+processArgs [] = Left []
+processArgs ("--" : sourceDirs) = Left sourceDirs
+processArgs (targetDir : rest) = Right Args{ targetDir, sourceDirs, ghcOptions }
+  where (sourceDirs, drop 1 -> ghcOptions) = break (== "--") rest

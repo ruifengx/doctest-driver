@@ -79,8 +79,8 @@ import Language.Haskell.Syntax.Module.Name (ModuleName (ModuleName))
 import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
 import Test.DocTest.Driver.Utils (dosLines, naturalOrdered, splitBy)
 
-extractDocTests :: [String] -> FilePath -> IO [Module]
-extractDocTests opts dir = map extractFromModule <$> parseModulesIn opts dir
+extractDocTests :: [String] -> [FilePath] -> IO [Module]
+extractDocTests opts dirs = map extractFromModule <$> parseModulesIn opts dirs
 
 data Module = Module
   { filePath   :: FilePath
