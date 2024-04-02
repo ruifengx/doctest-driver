@@ -27,7 +27,8 @@ import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWr
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
 import Data.List (intercalate)
-import Data.List.NonEmpty qualified as NonEmpty (head)
+import Data.List.NonEmpty (NonEmpty)
+import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
 import System.Directory (createDirectoryIfMissing)
@@ -167,7 +168,9 @@ genSetup = go []
         go path (TestProperty propLine)    = wrapPath path (genProperty propLine)
         genEx path l
           | null l.expectedOutput = lineDoc l.programLine
-          | otherwise = wrapPath path (genExample l)
+          | otherwise = wrapPath path do
+            flags <- asks (.parserDynFlags)
+            genExample (allowParenthesis flags l.programLine.textLine) l
         wrapPath path d = foldl (\t p -> "describe " <> textShow p $$ nest 2 t) d path
 
 genDocTests :: DocTests -> Doc
@@ -178,17 +181,21 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
   where header = "it " <> textShow line <> " $ do"
         line = locLine (exampleLoc (NonEmpty.head exampleLines))
         exampleLoc l = l.programLine.location
-        contents = vcat (fmap genExample exampleLines)
+        contents = vcat (map genExamples (NonEmpty.groupBy sameGroup exampleLines))
+        indentOf l = length (takeWhile isSpace l.programLine.textLine)
+        sameGroup l r = indentOf l > indentOf r && null l.expectedOutput
 genDocTests (TestProperty propLine) = genProperty propLine
 
-genExample :: ExampleLine -> Doc
-genExample l = line $$ nest 2 (prepend (map lineDoc l.expectedOutput))
+genExamples :: NonEmpty ExampleLine -> Doc
+genExamples ls = do
+  flags <- asks (.parserDynFlags)
+  let ok l = allowParenthesis flags l.programLine.textLine
+  vcat (fmap (genExample (all ok ls)) ls)
+
+genExample :: Bool -> ExampleLine -> Doc
+genExample allowParen l = line $$ nest 2 (prepend (map lineDoc l.expectedOutput))
   where prepend xs = if null xs then mempty else "`shouldBe`" $$ "(" <> vcat xs <> ")"
-        line = do
-          flags <- asks (.parserDynFlags)
-          if allowParenthesis flags l.programLine.textLine
-            then lineDocWith "(" ")" l.programLine
-            else lineDoc l.programLine
+        line = if allowParen then lineDocWith "(" ")" l.programLine else lineDoc l.programLine
 
 genProperty :: DocLine -> Doc
 genProperty propLine = header $$ nest 2 (lineDoc propLine)
