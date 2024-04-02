@@ -13,6 +13,7 @@ import Test.DocTest.Driver.Extract
   , ExampleLine (expectedOutput, programLine)
   , Loc
   , Module (importList, modulePath, setupCode, testCases, topSetup)
+  , spanDocLine
   )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
 
@@ -30,6 +31,7 @@ import System.Directory (createDirectoryIfMissing)
 import System.FilePath (takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), withFile)
 
+import Data.Char (isSpace)
 import GHC.Data.FastString (FastString, unpackFS)
 import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
 import GHC.Utils.Ppr qualified as P
@@ -137,7 +139,8 @@ genModuleDoc m = vcat
         globalSetup = vcat (map lineDoc m.topSetup)
 
 lineDoc :: DocLine -> Doc
-lineDoc l = locDoc mempty l.location <> text l.textLine
+lineDoc l = text white <> locDoc mempty real.location <> text real.textLine
+  where (white, real) = spanDocLine isSpace l
 
 genSetup :: DocTests -> Doc
 genSetup = go []

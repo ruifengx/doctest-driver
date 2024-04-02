@@ -2,6 +2,7 @@ module Test.DocTest.Driver.Extract
   ( Module (..)
   , DocTests (..)
   , DocLine (..)
+  , spanDocLine
   , ExampleLine (..)
   , Loc
   , extractDocTests
@@ -194,11 +195,14 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
 stripPrefix :: String -> DocLine -> Maybe DocLine
 stripPrefix p l = DocLine (advanceLoc p l.location) <$> List.stripPrefix p l.textLine
 
+spanDocLine :: (Char -> Bool) -> DocLine -> (String, DocLine)
+spanDocLine p l = (left, DocLine (advanceLoc left l.location) rest)
+  where (left, rest) = span p l.textLine
+
 -- NOTE: we unindent the lines by only removing extra leading /spaces/.
 -- this means other whitespace characters like tabs are not considered at all.
 trimLeft :: DocLine -> DocLine
-trimLeft l = DocLine (advanceLoc left l.location) rest
-  where (left, rest) = span (== ' ') l.textLine
+trimLeft = snd . spanDocLine (== ' ')
 
 trimProperty :: DocLine -> DocLine
 trimProperty = trimLeft . fromJust . stripPrefix "prop>" . trimLeft
