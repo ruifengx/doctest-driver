@@ -125,13 +125,13 @@ genModuleDoc m = vcat
   , importList
   , emptyText
   , "spec :: Spec"
-  , "spec = describe " <> textShow modulePath <> " $ do"
-  , nest 2 contents
+  , if null contents then "spec = pure ()" else entry
   ]
   where modulePath = intercalate "." m.modulePath
         importList = vcat (map singleImport m.importList)
         singleImport l = locDoc "import " l.location <> text l.textLine
-        contents = vcat (map genSetup m.setupCode <> map genDocTests m.testCases)
+        contents = map genSetup m.setupCode <> map genDocTests m.testCases
+        entry = "spec = describe " <> textShow modulePath <> " $ do" $$ nest 2 (vcat contents)
 
 lineDoc :: DocLine -> Doc
 lineDoc l = locDoc mempty l.location <> text l.textLine
