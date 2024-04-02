@@ -164,8 +164,9 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
 genDocTests (TestProperty propLine) = genProperty propLine
 
 genExample :: ExampleLine -> Doc
-genExample l = lineDoc l.programLine $$ nest 2 (vcat (prepend (map lineDoc l.expectedOutput)))
-  where prepend xs = if null xs then xs else "`shouldBe`" : xs
+genExample l = "(" <> lineDoc l.programLine <> ")"
+  $$ nest 2 (prepend (map lineDoc l.expectedOutput))
+  where prepend xs = if null xs then mempty else "`shouldBe`" $$ "(" <> vcat xs <> ")"
 
 genProperty :: DocLine -> Doc
 genProperty propLine = header $$ nest 2 (lineDoc propLine)
