@@ -12,7 +12,7 @@ import Test.DocTest.Driver.Extract
   , DocTests (Group, TestExample, TestProperty)
   , ExampleLine (expectedOutput, programLine)
   , Loc
-  , Module (importList, modulePath, setupCode, testCases)
+  , Module (importList, modulePath, setupCode, testCases, topSetup)
   )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
 
@@ -124,6 +124,8 @@ genModuleDoc m = vcat
   , emptyText
   , importList
   , emptyText
+  , globalSetup
+  , emptyText
   , "spec :: Spec"
   , if null contents then "spec = pure ()" else entry
   ]
@@ -132,6 +134,7 @@ genModuleDoc m = vcat
         singleImport l = locDoc "import " l.location <> text l.textLine
         contents = map genSetup m.setupCode <> map genDocTests m.testCases
         entry = "spec = describe " <> textShow modulePath <> " $ do" $$ nest 2 (vcat contents)
+        globalSetup = vcat (map lineDoc m.topSetup)
 
 lineDoc :: DocLine -> Doc
 lineDoc l = locDoc mempty l.location <> text l.textLine
