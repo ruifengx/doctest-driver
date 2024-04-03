@@ -83,9 +83,6 @@ instance IsString Doc where
 text :: String -> Doc
 text = wrapDoc . P.text
 
-ftext :: FastString -> Doc
-ftext = wrapDoc . P.ftext
-
 textShow :: Show a => a -> Doc
 textShow = text . show
 
@@ -125,7 +122,7 @@ realLocDoc prefix loc = asks (.produceLocations) >>= \produceLoc ->
   put (Just newInfo)
 
 locDoc :: Doc -> Loc -> Doc
-locDoc prefix = either ftext (realLocDoc prefix)
+locDoc prefix = either (const prefix) (realLocDoc prefix)
 
 locLine :: Loc -> String
 locLine = either unpackFS (\l -> "line " <> show (srcLocLine l))
