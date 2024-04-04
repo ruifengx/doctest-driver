@@ -24,6 +24,7 @@ import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWr
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
 import Data.List (intercalate)
+import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NonEmpty (head)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
@@ -155,10 +156,10 @@ genExample l
   where program = lineDoc l.programLine
         expected = "(" <> vcat (map lineDoc l.expectedOutput) <> ")"
 
-genProperty :: DocLine -> Doc
-genProperty propLine = header $$ nest 2 (lineDoc propLine)
+genProperty :: NonEmpty DocLine -> Doc
+genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
   where header = "prop " <> textShow line <> " $"
-        line = locLine propLine.location
+        line = locLine ((.location) (NonEmpty.head propLines))
 
 genMainDoc :: [Module] -> Doc
 genMainDoc ms = vcat

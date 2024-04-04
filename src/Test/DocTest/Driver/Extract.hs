@@ -18,7 +18,7 @@ import Data.Generics (everything, mkQ)
 import Data.List (intercalate, isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
-import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, toList)
+import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, singleton, toList)
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 
 import GHC
@@ -104,7 +104,7 @@ advanceLocBy n = fmap (\loc -> mkRealSrcLoc (srcLocFile loc) (srcLocLine loc) (s
 
 data DocTests
   = Group String Loc [DocTests]
-  | TestProperty DocLine
+  | TestProperty (NonEmpty DocLine)
   | TestExample (NonEmpty ExampleLine)
   deriving stock (Show)
 
@@ -143,6 +143,7 @@ docToDocTests = linesToCases . docLines . hsDocString
 data LineType
   = Example
   | Property
+  | Verbatim
   | Blank
   | Other
   deriving stock (Eq)
@@ -151,6 +152,7 @@ docLineType :: String -> LineType
 docLineType (dropWhile isSpace -> s)
   | null s                 = Blank
   | ">>>"   `isPrefixOf` s = Example
+  | ">"     `isPrefixOf` s = Verbatim
   | "prop>" `isPrefixOf` s = Property
   | otherwise              = Other
 
@@ -167,13 +169,18 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
         assocLineType _        Property = False
         -- examples are separated by blank lines
         assocLineType Example  Blank    = False
-        assocLineType Example  _        = True
+        assocLineType Example  Other    = True
+        -- verbatim code is only joined with more verbatim code
+        assocLineType Verbatim Verbatim = True
+        assocLineType Verbatim _        = False
         -- now the first one is either blank or other, example can be started
         assocLineType _        Example  = False
+        assocLineType _        Verbatim = False
         -- and everything else can be grouped and dropped
         assocLineType _        _        = True
         -- properties are one in each group
-        toTestCase (Property, (_, p) :| r) = assert (null r) Just (TestProperty (trimProperty p))
+        toTestCase (Property, (_, p) :| r) = assert (null r) Just (wrapProperty p)
+          where wrapProperty = TestProperty . NonEmpty.singleton . trimProperty
         -- examples are optionally followed by expected output
         toTestCase (Example, exampleLines) = Just (collectExample exampleLines)
           where mkExampleLine (x :| rest) =
@@ -188,6 +195,15 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
                 collectExample = TestExample . unindent . fmap mkExampleLine . groupExamples
                 -- each example group is unindented separately
                 unindent = fmap (uncurry (flip ExampleLine)) . getCompose . unindentLines . Compose
+        -- verbatim code are converted to example or property based on inner comment
+        toTestCase (Verbatim, verbatimCode) = assert allIsVerbatim (wrap codeLines)
+          where allIsVerbatim = all (\(ty, _) -> ty == Verbatim) verbatimCode
+                codeLines = unindentLines (fmap (trimVerbatim . snd) verbatimCode)
+                firstLine = dropWhile isSpace ((.textLine) (NonEmpty.head codeLines))
+                wrap | "-- doctest:"  `isPrefixOf` firstLine = Just . wrapExample
+                     | "-- property:" `isPrefixOf` firstLine = Just . TestProperty
+                     | otherwise = const Nothing
+                wrapExample = TestExample . fmap (`ExampleLine` [])
         -- other lines are simply ignored
         toTestCase _                       = Nothing
 
@@ -206,6 +222,9 @@ trimLeft = snd . spanDocLine (== ' ')
 trimProperty, trimExample :: DocLine -> DocLine
 trimProperty = trimPrefix "prop>"
 trimExample = trimPrefix ">>>"
+
+trimVerbatim :: DocLine -> DocLine
+trimVerbatim = fromJust . stripPrefix ">" . trimLeft
 
 trimPrefix :: String -> DocLine -> DocLine
 trimPrefix p = trimLeft . fromJust . stripPrefix p . trimLeft
