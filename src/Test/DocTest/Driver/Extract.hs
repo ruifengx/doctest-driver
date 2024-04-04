@@ -198,10 +198,10 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
         -- verbatim code are converted to example or property based on inner comment
         toTestCase (Verbatim, verbatimCode) = assert allIsVerbatim (wrap codeLines)
           where allIsVerbatim = all (\(ty, _) -> ty == Verbatim) verbatimCode
-                codeLines = unindentLines (fmap (trimVerbatim . snd) verbatimCode)
-                firstLine = dropWhile isSpace ((.textLine) (NonEmpty.head codeLines))
-                wrap | "-- doctest:"  `isPrefixOf` firstLine = Just . wrapExample
-                     | "-- property:" `isPrefixOf` firstLine = Just . TestProperty
+                firstLine :| codeLines = unindentLines (fmap (trimVerbatim . snd) verbatimCode)
+                comment = dropWhile isSpace firstLine.textLine
+                wrap | "-- doctest:"  `isPrefixOf` comment = fmap wrapExample . nonEmpty
+                     | "-- property:" `isPrefixOf` comment = fmap TestProperty . nonEmpty
                      | otherwise = const Nothing
                 wrapExample = TestExample . fmap (`ExampleLine` [])
         -- other lines are simply ignored
