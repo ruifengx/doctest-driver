@@ -41,7 +41,8 @@ instance Dump Module where
     [ text "filePath:" <+> dump m.filePath
     , dumpTitleList False (text "modulePath:") m.modulePath
     , dumpTitleList False (text "importList:") m.importList
-    , dumpTitleList False (text "setupCode:") m.setupCode
+    , dumpTitleList False (text "topSetup:") m.topSetup
+    , dumpTitleList False (text "otherSetup:") m.otherSetup
     , dumpTitleList False (text "testCases:") m.testCases
     ]
 

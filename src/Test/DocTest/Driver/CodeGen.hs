@@ -12,14 +12,13 @@ import Test.DocTest.Driver.Extract
   , DocTests (Group, TestExample, TestProperty)
   , ExampleLine (expectedOutput, programLine)
   , Loc
-  , Module (importList, modulePath, setupCode, testCases, topSetup)
+  , Module (importList, modulePath, otherSetup, testCases, topSetup)
   , spanDocLine
   )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
 
 import Control.Arrow (Arrow (second), (&&&))
 import Control.Monad (unless, when)
-import Control.Monad.Reader (MonadReader (ask), ReaderT, runReaderT)
 import Control.Monad.State (MonadState (get, put), State, evalState)
 import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWriterT)
 import Data.Char (isSpace)
@@ -47,20 +46,20 @@ instance Monoid MDoc where
 type FileLine = (FastString, Int)
 type MFileLine = Maybe FileLine
 
-type CodeGenM = WriterT MDoc (ReaderT Bool (State (Maybe (FastString, Int))))
+type CodeGenM = WriterT MDoc (State (Maybe (FastString, Int)))
 
 newtype CodeGen a = Doc (CodeGenM a)
   deriving (Semigroup, Monoid) via Ap CodeGenM a
-  deriving (Functor, Applicative, Monad, MonadWriter MDoc, MonadState MFileLine, MonadReader Bool) via CodeGenM
+  deriving (Functor, Applicative, Monad, MonadWriter MDoc, MonadState MFileLine) via CodeGenM
 
 type Doc = CodeGen ()
 
 wrapDoc :: P.Doc -> Doc
 wrapDoc = Doc . tell . MDoc
 
-runDoc :: Bool -> Doc -> P.Doc
-runDoc produceLoc (Doc d) = res
-  where MDoc res = evalState (runReaderT (execWriterT d) produceLoc) Nothing
+runDoc :: Doc -> P.Doc
+runDoc (Doc d) = res
+  where MDoc res = evalState (execWriterT d) Nothing
 
 instance IsString Doc where
   fromString = text
@@ -96,8 +95,7 @@ nest :: Int -> Doc -> Doc
 nest n = pass . fmap (, coerce (P.nest n))
 
 realLocDoc :: Doc -> RealSrcLoc -> Doc
-realLocDoc prefix loc = ask >>= \produceLoc ->
-  if not produceLoc then prefix else do
+realLocDoc prefix loc = do
   let lineInfo = srcLocFile &&& srcLocLine
   let newInfo@(file, line) = lineInfo loc
   let linePragma = "{-# LINE " <> textShow line <+> textShow file <> " #-}"
@@ -121,33 +119,23 @@ genModuleDoc m = vcat
   , emptyText
   , "import " <> text modulePath
   , emptyText
-  , importList
+  , vcat (map genImport m.importList)
   , emptyText
-  , globalSetup
+  , vcat (map lineDoc m.topSetup)
   , emptyText
   , "spec :: Spec"
   , if null contents then "spec = pure ()" else entry
   ]
   where modulePath = intercalate "." m.modulePath
-        importList = vcat (map singleImport m.importList)
-        singleImport l = locDoc "import " l.location <> text l.textLine
-        contents = map genSetup m.setupCode <> map genDocTests m.testCases
+        contents = map lineDoc m.otherSetup <> map genDocTests m.testCases
         entry = "spec = describe " <> textShow modulePath <> " $ do" $$ nest 2 (vcat contents)
-        globalSetup = vcat (map lineDoc m.topSetup)
 
 lineDoc :: DocLine -> Doc
 lineDoc l = text white <> locDoc mempty real.location <> text real.textLine
   where (white, real) = spanDocLine isSpace l
 
-genSetup :: DocTests -> Doc
-genSetup = go []
-  where go path (Group name _ tests)       = vcat (map (go (name : path)) tests)
-        go path (TestExample exampleLines) = vcat (fmap (genEx path) exampleLines)
-        go path (TestProperty propLine)    = wrapPath path (genProperty propLine)
-        genEx path l
-          | null l.expectedOutput = lineDoc l.programLine
-          | otherwise = wrapPath path (genExample l)
-        wrapPath path d = foldl (\t p -> "describe " <> textShow p $$ nest 2 t) d path
+genImport :: DocLine -> Doc
+genImport l = locDoc "import " l.location <> text l.textLine
 
 genDocTests :: DocTests -> Doc
 genDocTests (Group name loc tests) = header $$ nest 2 (vcat (map genDocTests tests))
@@ -161,9 +149,11 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
 genDocTests (TestProperty propLine) = genProperty propLine
 
 genExample :: ExampleLine -> Doc
-genExample l = "(" <> lineDoc l.programLine <> ")"
-  $$ nest 2 (prepend (map lineDoc l.expectedOutput))
-  where prepend xs = if null xs then mempty else "`shouldBe`" $$ "(" <> vcat xs <> ")"
+genExample l
+  | null l.expectedOutput = program
+  | otherwise = "(" <> program <> ")" $$ nest 2 ("`shouldBe`" $$ expected)
+  where program = lineDoc l.programLine
+        expected = "(" <> vcat (map lineDoc l.expectedOutput) <> ")"
 
 genProperty :: DocLine -> Doc
 genProperty propLine = header $$ nest 2 (lineDoc propLine)
@@ -190,7 +180,7 @@ genMainDoc ms = vcat
 writeToFile :: FilePath -> Doc -> IO ()
 writeToFile path doc = do
   createDirectoryIfMissing True (takeDirectory path)
-  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc True doc)
+  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc doc)
 
 codeGenSingle :: FilePath -> Module -> IO FilePath
 codeGenSingle root m = do

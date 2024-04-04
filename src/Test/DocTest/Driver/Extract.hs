@@ -10,7 +10,6 @@ module Test.DocTest.Driver.Extract
 
 import Control.Arrow ((&&&))
 import Control.Exception (assert)
-import Control.Monad (filterM)
 import Data.Bifunctor (second)
 import Data.Char (isSpace)
 import Data.Function (on, (&))
@@ -87,7 +86,7 @@ data Module = Module
   , modulePath :: [String]
   , importList :: [DocLine]
   , topSetup   :: [DocLine]
-  , setupCode  :: [DocTests]
+  , otherSetup :: [DocLine]
   , testCases  :: [DocTests]
   } deriving stock (Show)
 
@@ -120,7 +119,7 @@ data ExampleLine = ExampleLine
   } deriving stock (Show)
 
 extractFromModule :: ParsedModule -> Module
-extractFromModule m = Module{ filePath, modulePath, importList, topSetup, setupCode, testCases }
+extractFromModule m = Module{ filePath, modulePath, importList, topSetup, otherSetup, testCases }
   where filePath = m.pm_mod_summary.ms_hspp_file
         modulePath = breakModulePath (ms_mod_name m.pm_mod_summary)
         testCases = headerTests <> declTests
@@ -129,7 +128,7 @@ extractFromModule m = Module{ filePath, modulePath, importList, topSetup, setupC
           & hsmodExt
           & hsmodHaddockModHeader
           & maybe [] (docToDocTests . unLoc)
-        (importList, topSetup, setupCode, declTests) = m.pm_parsed_source
+        (importList, topSetup, otherSetup, declTests) = m.pm_parsed_source
           & unLoc
           & hsmodDecls
           & extractDocs
@@ -181,7 +180,7 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
                   assert (fst x == Example)
                   assert (all ((== Other) . fst) rest)
                   (expectedOutput, programLine)
-                  where programLine = fromJust (trimExample (snd x))
+                  where programLine = trimExample (snd x)
                         expectedOutput = unindentLines (map snd rest)
                 -- one example optionally followed by several responses
                 assocExampleLine l r = l == Example && r == Other
@@ -204,11 +203,12 @@ spanDocLine p l = (left, DocLine (advanceLoc left l.location) rest)
 trimLeft :: DocLine -> DocLine
 trimLeft = snd . spanDocLine (== ' ')
 
-trimProperty :: DocLine -> DocLine
-trimProperty = trimLeft . fromJust . stripPrefix "prop>" . trimLeft
+trimProperty, trimExample :: DocLine -> DocLine
+trimProperty = trimPrefix "prop>"
+trimExample = trimPrefix ">>>"
 
-trimExample :: DocLine -> Maybe DocLine
-trimExample = stripPrefix ">>>" . trimLeft
+trimPrefix :: String -> DocLine -> DocLine
+trimPrefix p = trimLeft . fromJust . stripPrefix p . trimLeft
 
 unindentLines :: Traversable t => t DocLine -> t DocLine
 unindentLines theLines = fmap dropSpace theLines
@@ -225,44 +225,49 @@ docChunkLines :: LHsDocStringChunk -> [DocLine]
 docChunkLines (L sp docText) = zipWith DocLine locs (dosLines (unpackHDSC docText))
   where locs = iterate (advanceLoc "\n") (toLoc (srcSpanStart sp))
 
-extractDocs :: [LHsDecl GhcPs] -> ([DocLine], [DocLine], [DocTests], [DocTests])
-extractDocs decls = (sortOn (.textLine) importList, topDefs, setupBlocks, concatMap process rest)
-  where process (decl, docs) = wrap allTests
+extractDocs :: [LHsDecl GhcPs] -> ([DocLine], [DocLine], [DocLine], [DocTests])
+extractDocs decls = (importList, topSetup, otherSetup, allTests)
+  where process (decl, docs) = wrap mainTests
           where name = declName (unLoc decl)
                 loc = toLoc (srcSpanStart (getLocA decl))
                 wrap tests
                   | null tests = []
                   | Nothing <- name = tests
                   | Just nm <- name = [Group nm loc tests]
-                allTests = concatMap docToDocTests (innerDocs <> docs)
+                mainTests = concatMap docToDocTests (innerDocs <> docs)
                 innerDocs = everything (++) (mkQ [] pure) decl
         groupedDecls = collectDocs (sortBy (leftmost_smallest `on` getLocA) decls)
         -- separate "setup" comments from other ordinary comments
-        (topSetup, otherSetup, rest) = partition3 go groupedDecls
+        (topSetupBlocks, setupBlocks, rest) = partition3 go groupedDecls
           where go (L _ (DocD _ (DocCommentNamed name doc)), docs)
-                  | "setup:top" `isPrefixOf` name = assert (null docs) C1 (name, top)
+                  | "setup:top" `isPrefixOf` name = assert (null docs) C1 ((name, loc), top)
                   | "setup" `isPrefixOf` name = assert (null docs) C2 ((name, loc), tests)
                   where loc = toLoc (srcSpanStart (getLoc doc))
                         tests = docToDocTests (unLoc doc)
-                        top = mapMaybe trimExample (docLines (hsDocString (unLoc doc)))
+                        top = docToDocTests (unLoc doc)
                 go decl = C3 decl
-        -- collect top-level definitions
-        topDefs = unindentLines (concatMap snd (sortOn (naturalOrdered . fst) topSetup))
         -- sort setup blocks according to their name
-        sortedSetup = sortOn (naturalOrdered . fst . fst) otherSetup
-        -- separate "import" declarations from other examples/properties
-        (importList, restSetup) = traverse processSetup (Compose sortedSetup)
-        setupBlocks = mapMaybe mkGroup (getCompose restSetup)
+        processBlock
+          = second (mapMaybe mkGroup . getCompose)
+          . traverse processSetup . Compose
+          . sortOn (naturalOrdered . fst . fst)
         mkGroup ((name, loc), tests) = if null tests then Nothing else Just (Group name loc tests)
+        -- separate "import" declarations from other examples/properties
+        ((topImportList, topSetup), topSetupTests) = processBlock topSetupBlocks
+        ((otherImportList, otherSetup), otherSetupTests) = processBlock setupBlocks
+        importList = sortOn (.textLine) (topImportList <> otherImportList)
+        allTests = topSetupTests <> otherSetupTests <> concatMap process rest
 
-processSetup :: [DocTests] -> ([DocLine], [DocTests])
+processSetup :: [DocTests] -> (([DocLine], [DocLine]), [DocTests])
 processSetup = second catMaybes . traverse go
-  where go (TestExample ls) = mkExample <$> filterM dropImport (NonEmpty.toList ls)
+  where go (TestExample ls) = mkExample <$> foldMap keepTests (NonEmpty.toList ls)
         go testCases        = pure (Just testCases)
         mkExample = fmap TestExample . nonEmpty
-        dropImport l = case stripPrefix "import" (trimLeft l.programLine) of
-          Just modulePath -> ([trimLeft modulePath], False)
-          Nothing         -> ([], True)
+        getImport = fmap trimLeft . stripPrefix "import"
+        keepTests l
+          | Just modulePath <- getImport l.programLine = (([modulePath], []), [])
+          | null l.expectedOutput = (([], [l.programLine]), [])
+          | otherwise = (mempty, [l])
 
 lIdString :: LIdP GhcPs -> String
 lIdString = idString . unLoc
