@@ -144,7 +144,7 @@ genDocTests (Group name loc tests) = header $$ nest 2 (vcat (map genDocTests tes
         groupName = either (const "") (\l -> " (line " <> show (srcLocLine l) <> ")") loc
 genDocTests (TestExample exampleLines) = header $$ nest 2 contents
   where header = "it " <> textShow line <> " $ do"
-        line = locLine (exampleLoc (NonEmpty.head exampleLines))
+        line = "example (" <> locLine (exampleLoc (NonEmpty.head exampleLines)) <> ")"
         exampleLoc l = l.programLine.location
         contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
@@ -159,7 +159,7 @@ genExample l
 genProperty :: NonEmpty DocLine -> Doc
 genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
   where header = "prop " <> textShow line <> " $"
-        line = locLine ((.location) (NonEmpty.head propLines))
+        line = "property (" <> locLine ((.location) (NonEmpty.head propLines)) <> ")"
 
 genMainDoc :: [Module] -> Doc
 genMainDoc ms = vcat
