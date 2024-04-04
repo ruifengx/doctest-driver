@@ -4,7 +4,6 @@ module Test.DocTest.Driver.CodeGen
   , runDoc
   , genModuleDoc
   , codeGen
-  , codeGenMain
   , codeGenSingle
   ) where
 
@@ -17,27 +16,23 @@ import Test.DocTest.Driver.Extract
   , spanDocLine
   )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
-import Test.DocTest.Driver.Extract.GHC (allowParenthesis, getSessionDynFlags)
 
 import Control.Arrow (Arrow (second), (&&&))
 import Control.Monad (unless, when)
-import Control.Monad.Reader (MonadIO (liftIO), MonadReader, ReaderT, asks, runReaderT)
+import Control.Monad.Reader (MonadReader (ask), ReaderT, runReaderT)
 import Control.Monad.State (MonadState (get, put), State, evalState)
 import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWriterT)
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
 import Data.List (intercalate)
-import Data.List.NonEmpty (NonEmpty)
-import Data.List.NonEmpty qualified as NonEmpty (groupBy, head)
+import Data.List.NonEmpty qualified as NonEmpty (head)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath (takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), withFile)
 
-import GHC (Ghc)
 import GHC.Data.FastString (FastString, unpackFS)
-import GHC.Driver.Session (DynFlags)
 import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
 import GHC.Utils.Ppr qualified as P
 
@@ -52,30 +47,20 @@ instance Monoid MDoc where
 type FileLine = (FastString, Int)
 type MFileLine = Maybe FileLine
 
-data CodeGenSettings = CGSettings
-  { produceLocations :: Bool
-  , parserDynFlags   :: DynFlags
-  }
-
-type CodeGenM = WriterT MDoc (ReaderT CodeGenSettings (State (Maybe (FastString, Int))))
+type CodeGenM = WriterT MDoc (ReaderT Bool (State (Maybe (FastString, Int))))
 
 newtype CodeGen a = Doc (CodeGenM a)
   deriving (Semigroup, Monoid) via Ap CodeGenM a
-  deriving
-    ( Functor, Applicative, Monad
-    , MonadWriter MDoc
-    , MonadState MFileLine
-    , MonadReader CodeGenSettings
-    ) via CodeGenM
+  deriving (Functor, Applicative, Monad, MonadWriter MDoc, MonadState MFileLine, MonadReader Bool) via CodeGenM
 
 type Doc = CodeGen ()
 
 wrapDoc :: P.Doc -> Doc
 wrapDoc = Doc . tell . MDoc
 
-runDoc :: CodeGenSettings -> Doc -> P.Doc
-runDoc settings (Doc d) = res
-  where MDoc res = evalState (runReaderT (execWriterT d) settings) Nothing
+runDoc :: Bool -> Doc -> P.Doc
+runDoc produceLoc (Doc d) = res
+  where MDoc res = evalState (runReaderT (execWriterT d) produceLoc) Nothing
 
 instance IsString Doc where
   fromString = text
@@ -111,7 +96,7 @@ nest :: Int -> Doc -> Doc
 nest n = pass . fmap (, coerce (P.nest n))
 
 realLocDoc :: Doc -> RealSrcLoc -> Doc
-realLocDoc prefix loc = asks (.produceLocations) >>= \produceLoc ->
+realLocDoc prefix loc = ask >>= \produceLoc ->
   if not produceLoc then prefix else do
   let lineInfo = srcLocFile &&& srcLocLine
   let newInfo@(file, line) = lineInfo loc
@@ -150,13 +135,9 @@ genModuleDoc m = vcat
         entry = "spec = describe " <> textShow modulePath <> " $ do" $$ nest 2 (vcat contents)
         globalSetup = vcat (map lineDoc m.topSetup)
 
-lineDocWith :: Doc -> Doc -> DocLine -> Doc
-lineDocWith before after l
-  = text white <> before <> locDoc mempty real.location <> text real.textLine <> after
-  where (white, real) = spanDocLine isSpace l
-
 lineDoc :: DocLine -> Doc
-lineDoc = lineDocWith mempty mempty
+lineDoc l = text white <> locDoc mempty real.location <> text real.textLine
+  where (white, real) = spanDocLine isSpace l
 
 genSetup :: DocTests -> Doc
 genSetup = go []
@@ -165,9 +146,7 @@ genSetup = go []
         go path (TestProperty propLine)    = wrapPath path (genProperty propLine)
         genEx path l
           | null l.expectedOutput = lineDoc l.programLine
-          | otherwise = wrapPath path do
-            flags <- asks (.parserDynFlags)
-            genExample (allowParenthesis flags l.programLine.textLine) l
+          | otherwise = wrapPath path (genExample l)
         wrapPath path d = foldl (\t p -> "describe " <> textShow p $$ nest 2 t) d path
 
 genDocTests :: DocTests -> Doc
@@ -178,21 +157,13 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
   where header = "it " <> textShow line <> " $ do"
         line = locLine (exampleLoc (NonEmpty.head exampleLines))
         exampleLoc l = l.programLine.location
-        contents = vcat (map genExamples (NonEmpty.groupBy sameGroup exampleLines))
-        indentOf l = length (takeWhile isSpace l.programLine.textLine)
-        sameGroup l r = indentOf l > indentOf r && null l.expectedOutput
+        contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
 
-genExamples :: NonEmpty ExampleLine -> Doc
-genExamples ls = do
-  flags <- asks (.parserDynFlags)
-  let ok l = allowParenthesis flags l.programLine.textLine
-  vcat (fmap (genExample (all ok ls)) ls)
-
-genExample :: Bool -> ExampleLine -> Doc
-genExample allowParen l = line $$ nest 2 (prepend (map lineDoc l.expectedOutput))
+genExample :: ExampleLine -> Doc
+genExample l = "(" <> lineDoc l.programLine <> ")"
+  $$ nest 2 (prepend (map lineDoc l.expectedOutput))
   where prepend xs = if null xs then mempty else "`shouldBe`" $$ "(" <> vcat xs <> ")"
-        line = if allowParen then lineDocWith "(" ")" l.programLine else lineDoc l.programLine
 
 genProperty :: DocLine -> Doc
 genProperty propLine = header $$ nest 2 (lineDoc propLine)
@@ -216,25 +187,22 @@ genMainDoc ms = vcat
         modulePaths = map modulePath ms
         modulePath m = "DocTests." <> text (intercalate "." m.modulePath)
 
-writeToFile :: FilePath -> Doc -> Ghc ()
+writeToFile :: FilePath -> Doc -> IO ()
 writeToFile path doc = do
-  parserDynFlags <- getSessionDynFlags
-  let settings = CGSettings{ produceLocations = True, parserDynFlags }
-  liftIO do
-    createDirectoryIfMissing True (takeDirectory path)
-    withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc settings doc)
+  createDirectoryIfMissing True (takeDirectory path)
+  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc True doc)
 
-codeGenSingle :: FilePath -> Module -> Ghc FilePath
+codeGenSingle :: FilePath -> Module -> IO FilePath
 codeGenSingle root m = do
   let modulePath = "DocTests" : m.modulePath
   let path = root </> foldr (</>) "" modulePath <> ".hs"
   writeToFile path (genModuleDoc m)
   pure (intercalate "." modulePath)
 
-codeGenMain :: FilePath -> [Module] -> Ghc ()
+codeGenMain :: FilePath -> [Module] -> IO ()
 codeGenMain root ms = writeToFile (root </> "Main.hs") (genMainDoc ms)
 
-codeGen :: FilePath -> [Module] -> Ghc [FilePath]
+codeGen :: FilePath -> [Module] -> IO [FilePath]
 codeGen root ms = do
   codeGenMain root ms
   traverse (codeGenSingle root) ms

@@ -6,19 +6,18 @@ import System.Environment (getArgs)
 import Test.DocTest.Driver.CodeGen (codeGen)
 import Test.DocTest.Driver.Extract (extractDocTests)
 import Test.DocTest.Driver.Extract.Dump (dump, printDoc)
-import Test.DocTest.Driver.Extract.GHC (liftIO, withGhc)
 
 main :: IO ()
 main = do
   rawArgs <- getArgs
   case processArgs rawArgs of
-    Left sourceDirs -> withGhc [] do
-      tests <- extractDocTests sourceDirs
-      liftIO (printDoc (dump tests))
-    Right args -> withGhc args.ghcOptions do
-      tests <- extractDocTests args.sourceDirs
+    Left sourceDirs -> do
+      tests <- extractDocTests [] sourceDirs
+      printDoc (dump tests)
+    Right args -> do
+      tests <- extractDocTests args.ghcOptions args.sourceDirs
       modulePaths <- codeGen args.targetDir tests
-      traverse_ (liftIO . putStrLn) modulePaths
+      traverse_ putStrLn modulePaths
 
 data Args = Args
   { targetDir  :: FilePath

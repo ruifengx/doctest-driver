@@ -23,8 +23,7 @@ import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, toList)
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 
 import GHC
-  ( Ghc
-  , GhcPs
+  ( GhcPs
   , ModSummary (ms_hspp_file)
   , ParsedModule (pm_mod_summary, pm_parsed_source)
   , XModulePs (hsmodHaddockModHeader)
@@ -80,8 +79,8 @@ import Language.Haskell.Syntax.Module.Name (ModuleName (ModuleName))
 import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
 import Test.DocTest.Driver.Utils (dosLines, naturalOrdered, splitBy)
 
-extractDocTests :: [FilePath] -> Ghc [Module]
-extractDocTests dirs = map extractFromModule <$> parseModulesIn dirs
+extractDocTests :: [String] -> [FilePath] -> IO [Module]
+extractDocTests opts dirs = map extractFromModule <$> parseModulesIn opts dirs
 
 data Module = Module
   { filePath   :: FilePath
