@@ -17,8 +17,7 @@ splitBy sep xs = s : maybe [] (splitBy sep . snd) (uncons rest)
   where (s, rest) = break (sep ==) xs
 
 dosLines :: String -> [String]
-dosLines "" = []
-dosLines s  = start : dosLines rest
+dosLines s  = start : if null rest then [] else dosLines rest
   where (start, rest) = breakDosLine s
 
 breakDosLine :: String -> (String, String)
