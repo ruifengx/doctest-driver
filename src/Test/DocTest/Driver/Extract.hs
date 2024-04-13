@@ -148,7 +148,7 @@ data LineType
   | Verbatim
   | Blank
   | Other
-  deriving stock (Eq)
+  deriving stock (Eq, Show)
 
 docLineType :: String -> LineType
 docLineType (dropWhile isSpace -> s)
@@ -170,8 +170,11 @@ linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) a
         assocLineType Property _        = False
         assocLineType _        Property = False
         -- examples are separated by blank lines
+        -- multiple example program lines can be grouped together
+        -- in this case the output will be in the same do block
         assocLineType Example  Blank    = False
         assocLineType Example  Other    = True
+        assocLineType Example  Example  = True
         -- verbatim code is only joined with more verbatim code
         assocLineType Verbatim Verbatim = True
         assocLineType Verbatim _        = False
@@ -265,11 +268,10 @@ extractDocs decls = (importList, topSetup, otherSetup, allTests)
         -- separate "setup" comments from other ordinary comments
         (topSetupBlocks, setupBlocks, rest) = partition3 go groupedDecls
           where go (L _ (DocD _ (DocCommentNamed name doc)), docs)
-                  | "setup:top" `isPrefixOf` name = assert (null docs) C1 ((name, loc), top)
-                  | "setup" `isPrefixOf` name = assert (null docs) C2 ((name, loc), tests)
+                  | "setup:top" `isPrefixOf` name = assert (null docs) C1 ((name, loc), code)
+                  | "setup" `isPrefixOf` name = assert (null docs) C2 ((name, loc), code)
                   where loc = toLoc (srcSpanStart (getLoc doc))
-                        tests = docToDocTests (unLoc doc)
-                        top = docToDocTests (unLoc doc)
+                        code = docToDocTests (unLoc doc)
                 go decl = C3 decl
         -- sort setup blocks according to their name
         processBlock
