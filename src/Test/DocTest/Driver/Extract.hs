@@ -12,6 +12,7 @@ import Control.Arrow ((&&&))
 import Control.Exception (assert)
 import Data.Bifunctor (second)
 import Data.Char (isSpace)
+import Data.Foldable (foldMap')
 import Data.Function (on, (&))
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import Data.Generics (everything, mkQ)
@@ -20,6 +21,7 @@ import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, singleton, toList)
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
+import Data.Semigroup (Min (Min, getMin))
 
 import GHC
   ( GhcPs
@@ -231,8 +233,12 @@ trimPrefix p = trimLeft . fromJust . stripPrefix p . trimLeft
 
 unindentLines :: Traversable t => t DocLine -> t DocLine
 unindentLines theLines = fmap dropSpace theLines
-  where level = minimum (fmap getLevel theLines)
-        getLevel l = length (takeWhile (== ' ') l.textLine)
+  where -- since all-white lines are excluded, we must not use 'minimum'
+        -- because 'minimum' diverges for empty sequences
+        level = maybe 0 getMin $ foldMap' (Just . Min) $ Compose (fmap getLevel theLines)
+        -- only consider non-white lines for unindent
+        getLevel l = if null rest then Nothing else Just (length white)
+          where (white, rest) = span (== ' ') l.textLine
         dropSpace l = DocLine (advanceLocBy level l.location) (drop level l.textLine)
 
 docLines :: HsDocString -> [DocLine]
