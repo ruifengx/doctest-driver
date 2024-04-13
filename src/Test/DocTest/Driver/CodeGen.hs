@@ -25,7 +25,7 @@ import Data.Char (isSpace)
 import Data.Coerce (coerce)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty)
-import Data.List.NonEmpty qualified as NonEmpty (head)
+import Data.List.NonEmpty qualified as NonEmpty (head, toList)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
 import System.Directory (createDirectoryIfMissing)
@@ -156,18 +156,34 @@ genDocTests (Group name loc tests) = header $$ nest 2 (vcat (map genDocTests tes
   where header = "describe " <> textShow (name <> groupName) <> " $ do"
         groupName = either (const "") (\l -> " (line " <> show (srcLocLine l) <> ")") loc
 genDocTests (TestExample exampleLines) = header $$ nest 2 contents
-  where header = "it " <> textShow line <> " $ do"
-        line = "example (" <> locLine (exampleLoc (NonEmpty.head exampleLines)) <> ")"
-        exampleLoc l = l.programLine.location
+  where header = if nTests == 1 then "do" else key <+> label <> " $ do"
+        key = if nTests == 0 then "it" else "describe"
+        nTests = testCount exampleLines
+        -- nTests == 0: use "it", the whole group is a test, but no "it" for example lines
+        -- nTests == 1: use "do", no need to introduce the group layer for a single test
+        -- nTests == 2: use "describe", we need a group only in this case
+        kind = if nTests == 0 then "multiline example" else "example group"
+        label = textShow (kind <> " (" <> locLine loc <> ")")
+        loc = let l = NonEmpty.head exampleLines in l.programLine.location
         contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
 
 genExample :: ExampleLine -> Doc
 genExample l
   | null l.expectedOutput = program
-  | otherwise = "(" <> program <> ")" $$ nest 2 ("`shouldBe`" $$ expected)
-  where program = lineDoc l.programLine
+  | otherwise = header $$ nest 2 ("(" <> program <> ")" $$ nest 2 ("`shouldBe`" $$ expected))
+  where header = "it " <> label <> " $ do"
+        label = textShow ("example (" <> locLine l.programLine.location <> ")")
+        program = lineDoc l.programLine
         expected = "(" <> vcat (map lineDoc l.expectedOutput) <> ")"
+
+testCount :: NonEmpty ExampleLine -> Int
+testCount = go 0 . NonEmpty.toList
+  where go n [] = n
+        go n (line : rest)
+          | null line.expectedOutput = go n rest
+          | n == 1 = 2
+          | otherwise = go (succ n) rest
 
 genProperty :: NonEmpty DocLine -> Doc
 genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
