@@ -53,6 +53,9 @@ instance Dump Char where
   dump = text . show
   dumpList = text . show
 
+instance Dump a => Dump (Maybe a) where
+  dump = maybe (text "null") dump
+
 instance Dump a => Dump [a] where
   dump = dumpList
 
@@ -75,7 +78,17 @@ instance Dump DocTests where
     = text "group" <+> dump name <> text "," <+> dump loc <> text ":" $$ dump tests
   dump (TestExample line) = text "example:" $$ dump line
   dump (TestProperty prop) = text "property:" $$ dump prop
+  dump (TestExampleRich rich) = text "rich-example:" $$ dump rich
 
 instance Dump ExampleLine where
   dump l = text "program:" <+> dump l.programLine
     $$ dumpTitleList True (text "expected:") l.expectedOutput
+
+instance Dump RichExample where
+  dump r = text "programBlock:" <+> dump r.programBlock
+    $$ text "outputText:" <+> dump r.outputText
+    $$ text "capturedText:" <+> dump r.capturedText
+
+instance Dump ProcessedText where
+  dump p = text "rawTextString:" <+> dump p.rawTextString
+    $$ text "identifier:" <+> dump p.identifier

@@ -9,10 +9,12 @@ module Test.DocTest.Driver.CodeGen
 
 import Test.DocTest.Driver.Extract
   ( DocLine (location, textLine)
-  , DocTests (Group, TestExample, TestProperty)
+  , DocTests (Group, TestExample, TestExampleRich, TestProperty)
   , ExampleLine (expectedOutput, programLine)
   , Loc
   , Module (importList, modulePath, otherSetup, testCases, topSetup)
+  , ProcessedText (identifier, rawTextString)
+  , RichExample (RichExample, capturedText, outputText, programBlock)
   , spanDocLine
   )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
@@ -24,10 +26,12 @@ import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWr
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
 import Data.List (intercalate)
-import Data.List.NonEmpty (NonEmpty)
+import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty (head, toList)
+import Data.Maybe (fromJust)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
+import GHC.Show (showLitString)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath (takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), withFile)
@@ -162,11 +166,11 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
         -- nTests == 0: use "it", the whole group is a test, but no "it" for example lines
         -- nTests == 1: use "do", no need to introduce the group layer for a single test
         -- nTests == 2: use "describe", we need a group only in this case
-        kind = if nTests == 0 then "multiline example" else "example group"
-        label = textShow (kind <> " (" <> locLine loc <> ")")
+        label = textShow ("example group (" <> locLine loc <> ")")
         loc = let l = NonEmpty.head exampleLines in l.programLine.location
         contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
+genDocTests (TestExampleRich richExample) = genExampleRich richExample
 
 genExample :: ExampleLine -> Doc
 genExample l
@@ -189,6 +193,28 @@ genProperty :: NonEmpty DocLine -> Doc
 genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
   where header = "prop " <> textShow line <> " $"
         line = "property (" <> locLine ((.location) (NonEmpty.head propLines)) <> ")"
+
+genExampleRich :: RichExample -> Doc
+genExampleRich RichExample{ programBlock, capturedText, outputText }
+  = header $$ nest 2 (bindings $$ program $$ expected)
+  where genBinding p = binder (fromJust p.identifier)
+          <+> text "=" <+> multilineString p.rawTextString
+        binder l = locDoc "let " l.location <> text l.textLine
+        bindings = vcat (map genBinding capturedText)
+        program = vcat (fmap lineDoc programBlock)
+        expected = maybe mempty go outputText
+          where go t = nest 2 $ "`shouldBe`"
+                  $$ maybe mempty lineDoc t.identifier
+                  $$ multilineString t.rawTextString
+        header = "it " <> textShow ("multiline example (" <> locLine loc <> ")") <> " $ do"
+        loc = let firstLine = NonEmpty.head programBlock in firstLine.location
+
+multilineString :: NonEmpty String -> Doc
+multilineString (l :| ls) = if null ls then textShow l else firstLine $$ go ls
+  where go []       = error "impossible"
+        go [x]      = text ('\\' : showLitString x "\"")
+        go (x : xs) = text ('\\' : showLitString x "\\n\\") $$ go xs
+        firstLine = text ('"' : showLitString l "\\n\\")
 
 genMainDoc :: [Module] -> Doc
 genMainDoc ms = vcat

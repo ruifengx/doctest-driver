@@ -4,10 +4,13 @@ module Test.DocTest.Driver.Extract
   , DocLine (..)
   , spanDocLine
   , ExampleLine (..)
+  , RichExample (..)
+  , ProcessedText (..)
   , Loc
   , extractDocTests
   ) where
 
+import Control.Applicative ((<|>))
 import Control.Arrow ((&&&))
 import Control.Exception (assert)
 import Data.Bifunctor (second)
@@ -20,7 +23,7 @@ import Data.List (intercalate, isPrefixOf, sortBy, sortOn)
 import Data.List qualified as List (stripPrefix)
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.List.NonEmpty qualified as NonEmpty (groupBy, head, singleton, toList)
-import Data.Maybe (catMaybes, fromJust, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, fromMaybe, isNothing, mapMaybe)
 import Data.Semigroup (Min (Min, getMin))
 
 import GHC
@@ -77,6 +80,7 @@ import Language.Haskell.Syntax.Decls
 import Language.Haskell.Syntax.Extension (IdP, LIdP)
 import Language.Haskell.Syntax.Module.Name (ModuleName (ModuleName))
 
+import Data.Either (partitionEithers)
 import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
 import Test.DocTest.Driver.Utils (dosLines, naturalOrdered, splitBy)
 
@@ -108,6 +112,7 @@ data DocTests
   = Group String Loc [DocTests]
   | TestProperty (NonEmpty DocLine)
   | TestExample (NonEmpty ExampleLine)
+  | TestExampleRich RichExample
   deriving stock (Show)
 
 data DocLine = DocLine
@@ -118,6 +123,17 @@ data DocLine = DocLine
 data ExampleLine = ExampleLine
   { programLine    :: DocLine
   , expectedOutput :: [DocLine]
+  } deriving stock (Show)
+
+data RichExample = RichExample
+  { programBlock :: NonEmpty DocLine
+  , outputText   :: Maybe ProcessedText
+  , capturedText :: [ProcessedText]
+  } deriving stock (Show)
+
+data ProcessedText = ProcessedText
+  { rawTextString :: NonEmpty String
+  , identifier    :: Maybe DocLine
   } deriving stock (Show)
 
 extractFromModule :: ParsedModule -> Module
@@ -164,53 +180,91 @@ groupByKey key cmp
   . NonEmpty.groupBy (cmp `on` fst)
   . map (key &&& id)
 
+assocLineType :: LineType -> LineType -> Bool
+-- properties are always one on each line
+assocLineType Property _        = False
+assocLineType _        Property = False
+-- examples are separated by blank lines
+-- multiple example program lines can be grouped together
+-- in this case the output will be in the same do block
+assocLineType Example  Blank    = False
+assocLineType Example  Other    = True
+assocLineType Example  Example  = True
+-- verbatim code is only joined with more verbatim code
+assocLineType Verbatim Verbatim = True
+assocLineType Verbatim _        = False
+-- now the first one is either blank or other, example can be started
+assocLineType _        Example  = False
+assocLineType _        Verbatim = False
+-- and everything else can be grouped and dropped
+assocLineType _        _        = True
+
+data DocGroup
+  = GSimple DocTests
+  | GVerb GroupKind (NonEmpty DocLine)
+
+data GroupKind
+  = GOutput (Maybe DocLine)
+  | GInput (Maybe DocLine)
+  | GCode DocLine
+
+groupKind :: DocLine -> GroupKind
+groupKind s = fromMaybe (GCode s)
+  $ GOutput . nullToNothing <$> stripPrefix "output:" s
+  <|> GInput . nullToNothing <$> stripPrefix "input:" s
+  where nullToNothing t = if null t.textLine then Nothing else Just t
+
+toTestGroup :: (LineType, NonEmpty (LineType, DocLine)) -> Maybe DocGroup
+-- properties are one in each group
+toTestGroup (Property, (_, p) :| r) = assert (null r) Just (wrapProperty p)
+  where wrapProperty = GSimple . TestProperty . NonEmpty.singleton . trimProperty
+-- examples are optionally followed by expected output
+toTestGroup (Example, exampleLines) = Just (collectExample exampleLines)
+  where mkExampleLine (x :| rest) =
+          assert (fst x == Example)
+          assert (all ((== Other) . fst) rest)
+          (expectedOutput, programLine)
+          where programLine = trimExample (snd x)
+                expectedOutput = unindentLines (map snd rest)
+        -- one example optionally followed by several responses
+        assocExampleLine l r = l == Example && r == Other
+        groupExamples = fromJust . nonEmpty . NonEmpty.groupBy (assocExampleLine `on` fst)
+        collectExample = GSimple . TestExample . unindent . fmap mkExampleLine . groupExamples
+        -- each example group is unindented separately
+        unindent = fmap wrapLine . getCompose . unindentLines . Compose
+        wrapLine (expectedOutput, programLine) = ExampleLine{ programLine, expectedOutput }
+-- verbatim code are converted to example or property based on inner comment
+toTestGroup (Verbatim, verbatimCode) = assert allIsVerbatim (wrap codeLines)
+  where allIsVerbatim = all (\(ty, _) -> ty == Verbatim) verbatimCode
+        firstLine :| codeLines = unindentLines (fmap (trimVerbatim . snd) verbatimCode)
+        comment = trimLeft firstLine
+        classify = fmap groupKind . stripPrefix "-- doctest:"
+        wrap | Just kind <- classify comment = fmap (GVerb kind) . nonEmpty
+             | "-- property:" `isPrefixOf` comment.textLine = fmap (GSimple . TestProperty) . nonEmpty
+             | otherwise = const Nothing
+-- other lines are simply ignored
+toTestGroup _ = Nothing
+
+groupsToCases :: [DocGroup] -> [DocTests]
+groupsToCases []                        = []
+groupsToCases (GVerb (GCode _) ps : gs) = collectRich ps [] Nothing gs
+groupsToCases (GVerb _ _ : gs)          = groupsToCases gs
+groupsToCases (GSimple tests : gs)      = tests : groupsToCases gs
+
+collectRich :: NonEmpty DocLine -> [ProcessedText] -> Maybe ProcessedText -> [DocGroup] -> [DocTests]
+collectRich code inputs outputText (g : gs)
+  | GVerb (GInput identifier) (fmap (.textLine) -> rawTextString) <- g
+    = collectRich code (ProcessedText{ identifier, rawTextString } : inputs) outputText gs
+  | GVerb (GOutput identifier) (fmap (.textLine) -> rawTextString) <- g
+    = assert (isNothing outputText)
+      collectRich code inputs (Just ProcessedText{ identifier, rawTextString }) gs
+collectRich code inputs outputText gs = TestExampleRich example : groupsToCases gs
+  where example = RichExample{ programBlock = code, outputText, capturedText = inputs }
+
 linesToCases :: [DocLine] -> [DocTests]
-linesToCases = mapMaybe toTestCase . groupByKey (\l -> docLineType l.textLine) assocLineType
-  where -- properties are always one on each line
-        assocLineType Property _        = False
-        assocLineType _        Property = False
-        -- examples are separated by blank lines
-        -- multiple example program lines can be grouped together
-        -- in this case the output will be in the same do block
-        assocLineType Example  Blank    = False
-        assocLineType Example  Other    = True
-        assocLineType Example  Example  = True
-        -- verbatim code is only joined with more verbatim code
-        assocLineType Verbatim Verbatim = True
-        assocLineType Verbatim _        = False
-        -- now the first one is either blank or other, example can be started
-        assocLineType _        Example  = False
-        assocLineType _        Verbatim = False
-        -- and everything else can be grouped and dropped
-        assocLineType _        _        = True
-        -- properties are one in each group
-        toTestCase (Property, (_, p) :| r) = assert (null r) Just (wrapProperty p)
-          where wrapProperty = TestProperty . NonEmpty.singleton . trimProperty
-        -- examples are optionally followed by expected output
-        toTestCase (Example, exampleLines) = Just (collectExample exampleLines)
-          where mkExampleLine (x :| rest) =
-                  assert (fst x == Example)
-                  assert (all ((== Other) . fst) rest)
-                  (expectedOutput, programLine)
-                  where programLine = trimExample (snd x)
-                        expectedOutput = unindentLines (map snd rest)
-                -- one example optionally followed by several responses
-                assocExampleLine l r = l == Example && r == Other
-                groupExamples = fromJust . nonEmpty . NonEmpty.groupBy (assocExampleLine `on` fst)
-                collectExample = TestExample . unindent . fmap mkExampleLine . groupExamples
-                -- each example group is unindented separately
-                unindent = fmap (uncurry (flip ExampleLine)) . getCompose . unindentLines . Compose
-        -- verbatim code are converted to example or property based on inner comment
-        toTestCase (Verbatim, verbatimCode) = assert allIsVerbatim (wrap codeLines)
-          where allIsVerbatim = all (\(ty, _) -> ty == Verbatim) verbatimCode
-                firstLine :| codeLines = unindentLines (fmap (trimVerbatim . snd) verbatimCode)
-                comment = dropWhile isSpace firstLine.textLine
-                wrap | "-- doctest:"  `isPrefixOf` comment = fmap wrapExample . nonEmpty
-                     | "-- property:" `isPrefixOf` comment = fmap TestProperty . nonEmpty
-                     | otherwise = const Nothing
-                wrapExample = TestExample . fmap (`ExampleLine` [])
-        -- other lines are simply ignored
-        toTestCase _                       = Nothing
+linesToCases
+  = groupsToCases . mapMaybe toTestGroup
+  . groupByKey (\l -> docLineType l.textLine) assocLineType
 
 stripPrefix :: String -> DocLine -> Maybe DocLine
 stripPrefix p l = DocLine (advanceLoc p l.location) <$> List.stripPrefix p l.textLine
@@ -288,13 +342,19 @@ extractDocs decls = (importList, topSetup, otherSetup, allTests)
 processSetup :: [DocTests] -> (([DocLine], [DocLine]), [DocTests])
 processSetup = second catMaybes . traverse go
   where go (TestExample ls) = mkExample <$> foldMap keepTests (NonEmpty.toList ls)
-        go testCases        = pure (Just testCases)
+        go (TestExampleRich rc)
+          | Nothing <- rc.outputText
+          , null rc.capturedText
+          , program <- NonEmpty.toList rc.programBlock
+          = (partitionEithers (map partImport program), Nothing)
+        go testCases = pure (Just testCases)
         mkExample = fmap TestExample . nonEmpty
         getImport = fmap trimLeft . stripPrefix "import"
         keepTests l
           | Just modulePath <- getImport l.programLine = (([modulePath], []), [])
           | null l.expectedOutput = (([], [l.programLine]), [])
           | otherwise = (mempty, [l])
+        partImport l = maybe (Right l) Left (getImport l)
 
 lIdString :: LIdP GhcPs -> String
 lIdString = idString . unLoc
