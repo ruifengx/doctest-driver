@@ -9,7 +9,7 @@ license: AGPL-3.0-or-later
 license-file: COPYING.md
 author: Ruifeng Xie
 maintainer: ruifengx@outlook.com
-copyright: (c) Ruifeng Xie 2024
+copyright: Copyright 2024, Ruifeng Xie
 category: Testing
 build-type: Simple
 extra-doc-files:
