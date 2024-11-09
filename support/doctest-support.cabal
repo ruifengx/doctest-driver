@@ -49,7 +49,9 @@ common base
     -Wredundant-constraints
 
   build-depends:
-    base ^>=4.18.2.1
+    base ^>=4.18.2.1,
+    call-stack ^>=0.4.0,
+    deepseq ^>=1.4.8.1,
 
 common binary
   ghc-options:
@@ -65,8 +67,16 @@ library
   hs-source-dirs: src
   -- cabal-gild: discover src
   exposed-modules:
+    Test.DocTest.FuzzyMatch
+    Test.DocTest.FuzzySyntax
+    Test.DocTest.Support
+
   build-depends:
-    HUnit ^>=1.6.2.0
+    HUnit ^>=1.6.2.0,
+    array ^>=0.5.6.0,
+
+  build-tool-depends:
+    alex:alex ^>=3.4.0.1
 
 test-suite doctest-support-test
   import: base, binary
