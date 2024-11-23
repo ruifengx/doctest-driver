@@ -1,3 +1,9 @@
+-- | Description: DocTest extraction using the GHC API.
+-- Copyright: Copyright 2024, Ruifeng Xie
+-- License: AGPL-3.0-or-later
+-- Maintainer: Ruifeng Xie <ruifengx@outlook.com>
+--
+-- DocTest extraction using the GHC API. GHC environment and options are handled here.
 module Test.DocTest.Driver.Extract.GHC
   ( parseModulesIn
   , parseModules
@@ -17,11 +23,13 @@ import GHC.Driver.Session (DynFlags (backend, ghcLink, ghcMode), gopt_set)
 import GHC.Unit.Module.Graph (filterToposortToModules)
 import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
 
+-- | Parse all the files in all the directories in the given list.
 parseModulesIn :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
-parseModulesIn opts dir = do
-  paths <- concat <$> traverse recursiveListDirectory dir
+parseModulesIn opts dirs = do
+  paths <- concat <$> traverse recursiveListDirectory dirs
   parseModules opts (filter (".hs" `isSuffixOf`) paths)
 
+-- | Parse all the files in the given list.
 parseModules :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
 parseModules opts paths = GHC.runGhc (Just GHC.libdir) do
   handleOptions opts

@@ -1,3 +1,9 @@
+-- | Description: DocTest extraction.
+-- Copyright: Copyright 2024, Ruifeng Xie
+-- License: AGPL-3.0-or-later
+-- Maintainer: Ruifeng Xie <ruifengx@outlook.com>
+--
+-- Extracting DocTests from source code parsed using the GHC API.
 module Test.DocTest.Driver.Extract
   ( Module (..)
   , DocTests (..)
@@ -84,18 +90,21 @@ import Data.Either (partitionEithers)
 import Test.DocTest.Driver.Extract.GHC (parseModulesIn)
 import Test.DocTest.Driver.Utils (dosLines, naturalOrdered, splitBy)
 
+-- | Extract a DocTest 'Module' from each 'FilePath', with specified compiler options.
 extractDocTests :: [String] -> [FilePath] -> IO [Module]
 extractDocTests opts dirs = map extractFromModule <$> parseModulesIn opts dirs
 
+-- | Extracted module.
 data Module = Module
-  { filePath   :: FilePath
-  , modulePath :: [String]
-  , importList :: [DocLine]
-  , topSetup   :: [DocLine]
-  , otherSetup :: [DocLine]
-  , testCases  :: [DocTests]
+  { filePath   :: FilePath    -- ^ Source file path to the original module.
+  , modulePath :: [String]    -- ^ Module name segments, to be separated by dots (@.@).
+  , importList :: [DocLine]   -- ^ List of import statements to be put at the top.
+  , topSetup   :: [DocLine]   -- ^ Top-level setup code, e.g., data type definitions.
+  , otherSetup :: [DocLine]   -- ^ Setup code to be run in a @do@-notation.
+  , testCases  :: [DocTests]  -- ^ Extracted test cases.
   } deriving stock (Show)
 
+-- | Best-effort source location.
 type Loc = Either FastString RealSrcLoc
 
 toLoc :: SrcLoc -> Loc
@@ -108,32 +117,37 @@ advanceLoc = fmap . flip (foldr (flip advanceSrcLoc))
 advanceLocBy :: Int -> Loc -> Loc
 advanceLocBy n = fmap (\loc -> mkRealSrcLoc (srcLocFile loc) (srcLocLine loc) (srcLocCol loc + n))
 
+-- | Extracted DocTest items.
 data DocTests
-  = Group String Loc [DocTests]
-  | TestProperty (NonEmpty DocLine)
-  | TestExample (NonEmpty ExampleLine)
-  | TestExampleRich RichExample
+  = Group String Loc [DocTests]         -- ^ Group, translated to @describe@.
+  | TestProperty (NonEmpty DocLine)     -- ^ Property, to be tested with QuickCheck.
+  | TestExample (NonEmpty ExampleLine)  -- ^ Example, compared with expected output.
+  | TestExampleRich RichExample         -- ^ Rich example with captured input and output.
   deriving stock (Show)
 
+-- | A single line from the DocTests, rendered with @{-# LINE ... #-}@ and @{-# COLUMN ... #-}@.
 data DocLine = DocLine
-  { location :: Loc
-  , textLine :: String
+  { location :: Loc     -- ^ Original source location.
+  , textLine :: String  -- ^ Content of the line.
   } deriving stock (Show)
 
+-- | A single line of example, accompanied by several output lines.
 data ExampleLine = ExampleLine
-  { programLine    :: DocLine
-  , expectedOutput :: [DocLine]
+  { programLine    :: DocLine   -- ^ Example line (code).
+  , expectedOutput :: [DocLine] -- ^ Output text lines.
   } deriving stock (Show)
 
+-- | Multi-line example as code blocks.
 data RichExample = RichExample
-  { programBlock :: NonEmpty DocLine
-  , outputText   :: Maybe ProcessedText
-  , capturedText :: [ProcessedText]
+  { programBlock :: NonEmpty DocLine    -- ^ Test code block.
+  , outputText   :: Maybe ProcessedText -- ^ Text representation of result value.
+  , capturedText :: [ProcessedText]     -- ^ Captured plain text available as variables.
   } deriving stock (Show)
 
+-- | Plain text to be captured as variables.
 data ProcessedText = ProcessedText
-  { rawTextString :: NonEmpty String
-  , identifier    :: Maybe DocLine
+  { rawTextString :: NonEmpty String  -- ^ Text lines.
+  , identifier    :: Maybe DocLine    -- ^ The variable name.
   } deriving stock (Show)
 
 extractFromModule :: ParsedModule -> Module
@@ -269,6 +283,7 @@ linesToCases
 stripPrefix :: String -> DocLine -> Maybe DocLine
 stripPrefix p l = DocLine (advanceLoc p l.location) <$> List.stripPrefix p l.textLine
 
+-- | 'span', but also handles the @location@ of 'DocLine's.
 spanDocLine :: (Char -> Bool) -> DocLine -> (String, DocLine)
 spanDocLine p l = (left, DocLine (advanceLoc left l.location) rest)
   where (left, rest) = span p l.textLine

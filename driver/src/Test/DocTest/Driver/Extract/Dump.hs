@@ -1,5 +1,11 @@
+-- | Description: Pretty-printing for extracted information.
+-- Copyright: Copyright 2024, Ruifeng Xie
+-- License: AGPL-3.0-or-later
+-- Maintainer: Ruifeng Xie <ruifengx@outlook.com>
+--
+-- Pretty-printing for extracted information, intended for debugging purposes.
 module Test.DocTest.Driver.Extract.Dump
-  ( Dump (dump)
+  ( Dump (..)
   , stringDoc
   , printDoc
   , hPrintDoc
@@ -16,17 +22,23 @@ import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
 import GHC.Utils.Ppr (Doc, Mode (PageMode), empty, ftext, nest, text, vcat, ($$), (<+>), (<>))
 import GHC.Utils.Ppr qualified as P (printDoc, renderStyle, style)
 
+-- | Pretty-printing for extracted 'Module' etc.
 class Dump a where
+  -- | Pretty-print to a GHC 'Doc'.
   dump :: a -> Doc
+  -- | Pretty-print a list to a GHC 'Doc'.
   dumpList :: [a] -> Doc
   dumpList xs = vcat (map (\x -> text "- " <> nest 2 (dump x)) xs)
 
+-- | Convenience function for print the GHC 'Doc' to a given 'Handle'.
 hPrintDoc :: Handle -> Doc -> IO ()
 hPrintDoc = P.printDoc (PageMode False) 100
 
+-- | Convenience function for print the GHC 'Doc' to 'stdout'.
 printDoc :: Doc -> IO ()
 printDoc = hPrintDoc stdout
 
+-- | Convenience function for converting a GHC 'Doc' to a 'String'.
 stringDoc :: Doc -> String
 stringDoc = P.renderStyle P.style
 
