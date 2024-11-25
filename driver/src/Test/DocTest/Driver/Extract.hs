@@ -385,8 +385,8 @@ declName (TyClD _ decl) = case decl of
   ClassDecl{} -> Just ("class " <> lIdString decl.tcdLName)
   where familyKind DataFamily = "data family "
         familyKind _          = "type family "
-        dataKind (NewTypeCon _) = "data "
-        dataKind _              = "newtype "
+        dataKind NewTypeCon{} = "newtype "
+        dataKind _            = "data "
 declName (ValD _ bind) = case bind of
   FunBind{ fun_id } -> Just (lIdString fun_id)
   VarBind{ var_id } -> Just (idString var_id)
