@@ -65,6 +65,7 @@ library
   exposed-modules:
     Test.DocTest.Driver.CodeGen
     Test.DocTest.Driver.Extract
+    Test.DocTest.Driver.Extract.Ast
     Test.DocTest.Driver.Extract.Dump
     Test.DocTest.Driver.Extract.GHC
     Test.DocTest.Driver.Utils
