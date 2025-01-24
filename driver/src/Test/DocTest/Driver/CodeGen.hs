@@ -15,27 +15,18 @@ module Test.DocTest.Driver.CodeGen
   ) where
 
 import Test.DocTest.Driver.Extract
-  ( DocLine (location, textLine)
-  , DocTests (Group, TestExample, TestExampleRich, TestProperty)
-  , ExampleLine (expectedOutput, programLine)
-  , Loc
-  , Module (importList, modulePath, otherSetup, testCases, topSetup)
-  , ProcessedText (identifier, rawTextString)
-  , RichExample (RichExample, capturedText, outputText, programBlock)
-  , spanDocLine
-  )
 import Test.DocTest.Driver.Extract.Dump (hPrintDoc)
 
 import Control.Arrow (Arrow (second), (&&&))
 import Control.Monad (unless, when)
+import Control.Monad.Reader (MonadReader (ask, local), ReaderT (..), asks, runReaderT)
 import Control.Monad.State (MonadState (get, put), State, evalState)
-import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (WriterT), execWriterT)
+import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (..), execWriterT)
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
-import Data.List (intercalate)
+import Data.List (intercalate, intersperse)
 import Data.List.NonEmpty (NonEmpty ((:|)))
-import Data.List.NonEmpty qualified as NonEmpty (head, toList)
-import Data.Maybe (fromJust)
+import Data.List.NonEmpty qualified as NonEmpty (fromList, head, toList)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
 import GHC.Show (showLitString)
@@ -61,7 +52,7 @@ instance Monoid MDoc where
 type FileLine = (FastString, Int)
 type MFileLine = Maybe FileLine
 
-type CodeGenM = WriterT MDoc (State MFileLine)
+type CodeGenM = WriterT MDoc (ReaderT [String] (State MFileLine))
 
 -- | Code generation monad.
 --
@@ -72,7 +63,8 @@ type CodeGenM = WriterT MDoc (State MFileLine)
 --   we omit the @{-# LINE ... #-}@ pragma to avoid cluttering the output.
 newtype CodeGen a = Doc (CodeGenM a)
   deriving (Semigroup, Monoid) via Ap CodeGenM a
-  deriving (Functor, Applicative, Monad, MonadWriter MDoc, MonadState MFileLine) via CodeGenM
+  deriving (Functor, Applicative, Monad) via CodeGenM
+  deriving (MonadReader [String], MonadWriter MDoc, MonadState MFileLine) via CodeGenM
 
 -- | A document is code generation without a separate result.
 type Doc = CodeGen ()
@@ -81,9 +73,9 @@ wrapDoc :: P.Doc -> Doc
 wrapDoc = Doc . tell . MDoc
 
 -- | Run the code generation and get the generated GHC 'P.Doc'.
-runDoc :: Doc -> P.Doc
-runDoc (Doc d) = res
-  where MDoc res = evalState (execWriterT d) Nothing
+runDoc :: [String] -> Doc -> P.Doc
+runDoc vars (Doc d) = res
+  where MDoc res = evalState (runReaderT (execWriterT d) vars) Nothing
 
 instance IsString Doc where
   fromString = text
@@ -108,6 +100,9 @@ Doc l $$ Doc r = Doc $ WriterT do
   MDoc dr <- execWriterT r
   when (P.isEmpty dr) (put originalLoc)
   pure ((), MDoc (dl P.$$ dr))
+
+hcat :: Foldable f => f Doc -> Doc
+hcat = foldr (<>) mempty
 
 vcat :: Foldable f => f Doc -> Doc
 vcat = foldr ($$) mempty
@@ -151,6 +146,7 @@ genModuleDoc m = vcat
   , emptyText
   , "import Test.Hspec"
   , "import Test.Hspec.QuickCheck"
+  , "import Test.DocTest.Support"
   , emptyText
   , "import " <> text modulePath
   , emptyText
@@ -159,22 +155,27 @@ genModuleDoc m = vcat
   , vcat (map lineDoc m.topSetup)
   , emptyText
   , "spec :: Spec"
-  , if null contents then "spec = pure ()" else entry
+  , if null m.testCases then "spec = pure ()" else header $$ contents
   ]
   where modulePath = intercalate "." m.modulePath
-        contents = map lineDoc m.otherSetup <> map genDocTests m.testCases
-        entry = "spec = describe " <> textShow modulePath <> " $ do" $$ nest 2 (vcat contents)
+        contents = nest 2 (vcat (map genDocTests m.testCases))
+        header = "spec = describe " <> textShow modulePath <> " $ do"
 
 lineDoc :: DocLine -> Doc
 lineDoc l = text white <> locDoc mempty real.location <> text real.textLine
   where (white, real) = spanDocLine isSpace l
 
 genImport :: DocLine -> Doc
-genImport l = locDoc "import " l.location <> text l.textLine
+genImport l = locDoc mempty l.location <> text l.textLine
+
+genDocTestList :: Maybe Doc -> [DocTests] -> Doc
+genDocTestList (Just name) [] = "pendingWith \"group with" <+> name <+> "but no test\""
+genDocTestList Nothing     [] = "pure ()"
+genDocTestList _           ts = vcat (map genDocTests ts)
 
 genDocTests :: DocTests -> Doc
-genDocTests (Group name loc tests) = header $$ nest 2 (vcat (map genDocTests tests))
-  where header = "describe " <> textShow (name <> groupName) <> " $ do"
+genDocTests (Group name loc tests) = header $$ nest 2 (genDocTestList Nothing tests)
+  where header = "describe " <> textShow (show name <> groupName) <> " $ do"
         groupName = either (const "") (\l -> " (line " <> show (srcLocLine l) <> ")") loc
 genDocTests (TestExample exampleLines) = header $$ nest 2 contents
   where header = if nTests == 1 then "do" else key <+> label <> " $ do"
@@ -187,16 +188,20 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
         loc = let l = NonEmpty.head exampleLines in l.programLine.location
         contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
-genDocTests (TestExampleRich richExample) = genExampleRich richExample
+genDocTests (TestMultiline testLines) = genMultiline testLines
+-- TODO: need to add new variables to the environment
+genDocTests (TestHook hook tests) = genHook hook (genDocTestList (Just "hook") tests)
+genDocTests (Capture content tests) = genCapture content (genDocTestList (Just "capture") tests)
+genDocTests (Warning loc msg) = genWarning loc msg
 
 genExample :: ExampleLine -> Doc
 genExample l
   | null l.expectedOutput = program
-  | otherwise = header $$ nest 2 ("(" <> program <> ")" $$ nest 2 ("`shouldBe`" $$ expected))
+  | otherwise = header $$ nest 2 ("(" <> program <> ")" $$ nest 2 ("`shouldMatch`" $$ expected))
   where header = "it " <> label <> " $ do"
         label = textShow ("example (" <> locLine l.programLine.location <> ")")
         program = lineDoc l.programLine
-        expected = "(" <> vcat (map lineDoc l.expectedOutput) <> ")"
+        expected = multilineString ((.textLine) <$> NonEmpty.fromList l.expectedOutput)
 
 testCount :: NonEmpty ExampleLine -> Int
 testCount = go 0 . NonEmpty.toList
@@ -211,20 +216,55 @@ genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
   where header = "prop " <> textShow line <> " $"
         line = "property (" <> locLine ((.location) (NonEmpty.head propLines)) <> ")"
 
-genExampleRich :: RichExample -> Doc
-genExampleRich RichExample{ programBlock, capturedText, outputText }
-  = header $$ nest 2 (bindings $$ program $$ expected)
-  where genBinding p = binder (fromJust p.identifier)
-          <+> text "=" <+> multilineString p.rawTextString
-        binder l = locDoc "let " l.location <> text l.textLine
-        bindings = vcat (map genBinding capturedText)
-        program = vcat (fmap lineDoc programBlock)
-        expected = maybe mempty go outputText
-          where go t = nest 2 $ "`shouldBe`"
-                  $$ maybe mempty lineDoc t.identifier
-                  $$ multilineString t.rawTextString
-        header = "it " <> textShow ("multiline example (" <> locLine loc <> ")") <> " $ do"
-        loc = let firstLine = NonEmpty.head programBlock in firstLine.location
+genMultiline :: NonEmpty DocLine -> Doc
+genMultiline ls@(l :| _) = header $$ program
+  where header = "it " <> textShow label <> " $ do"
+        label = "example (" <> locLine l.location <> ")"
+        program = vcat (map lineDoc (NonEmpty.toList ls))
+
+genHook :: IOHook -> Doc -> Doc
+genHook hook = genHookRaw hook.flavour hook.variables (vcat (fmap lineDoc hook.setupCode))
+
+isBeforeHook :: HookFlavour -> Bool
+isBeforeHook Before    = True
+isBeforeHook BeforeAll = True
+isBeforeHook After     = False
+isBeforeHook AfterAll  = False
+
+genHookRaw :: HookFlavour -> [String] -> Doc -> Doc -> Doc
+genHookRaw flavour vars hookBody tests | isBeforeHook flavour = do
+  oldVars <- ask
+  -- null vars: no new variables added, use before[All]_
+  -- null oldVars: no old variables (we can just return vars), use before[All]
+  -- otherwise: get old variables and add new, use before[All]With
+  let hookFunc = textShow flavour <> if null vars then "_" else unless (null oldVars) "With"
+  -- oldVars binders: bind every old variable in sequence
+  let binders = "\\(" <> hcat (intersperse ", " (map text oldVars)) <> ") ->"
+  let hook = "(" <> unless (null vars || null oldVars) binders <+> "do" <+> hookBody <> ")"
+  hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
+genHookRaw flavour vars hookBody tests = do
+  let hookFunc = textShow flavour <> when (null vars) "_"
+  oldVars <- asks (map (\x -> if x `elem` vars then x else "_"))
+  -- oldVars binders: bind every (used) old variable in sequence
+  let binders = "\\(" <> hcat (intersperse ", " (map text oldVars)) <> ") ->"
+  let hook = "(" <> unless (null vars) binders <+> "do" <+> hookBody <> ")"
+  hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
+
+genCapture :: CapturedContent -> Doc -> Doc
+genCapture content tests = case content.captureMethod of
+  String           -> pureBind mempty
+  TextStrict       -> pureBind "textStrict"
+  TextLazy         -> pureBind "textLazy"
+  ByteStringStrict -> pureBind "byteStringStrict"
+  ByteStringLazy   -> pureBind "byteStringLazy"
+  ShortByteString  -> pureBind "shortByteString"
+  TempFile         -> genHookRaw BeforeAll [content.variableName] hookBody tests
+  where s = multilineString content.textContent
+        pureBind f = "let" <+> (text content.variableName <+> "=" <+> f $$ nest 2 s) $$ tests
+        hookBody = text content.variableName <> " <- writeTempFile" $$ nest 2 s
+
+genWarning :: Loc -> String -> Doc
+genWarning loc msg = "pendingWith" <+> textShow (locLine loc ++ ": " ++ msg)
 
 multilineString :: NonEmpty String -> Doc
 multilineString (l :| ls) = if null ls then textShow l else firstLine $$ go ls
@@ -254,7 +294,7 @@ genMainDoc ms = vcat
 writeToFile :: FilePath -> Doc -> IO ()
 writeToFile path doc = do
   createDirectoryIfMissing True (takeDirectory path)
-  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc doc)
+  withFile path WriteMode \hFile -> hPrintDoc hFile (runDoc [] doc)
 
 -- | Perform code generation for a single extracted 'Module'.
 codeGenSingle :: FilePath -> Module -> IO FilePath

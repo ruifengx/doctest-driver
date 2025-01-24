@@ -51,10 +51,9 @@ dumpTitleList skipEmpty title xs
 instance Dump Module where
   dump m = vcat
     [ text "filePath:" <+> dump m.filePath
-    , dumpTitleList False (text "modulePath:") m.modulePath
+    , text "modulePath:" $$ dump m.modulePath
     , dumpTitleList False (text "importList:") m.importList
     , dumpTitleList False (text "topSetup:") m.topSetup
-    , dumpTitleList False (text "otherSetup:") m.otherSetup
     , dumpTitleList False (text "testCases:") m.testCases
     ]
 
@@ -90,17 +89,30 @@ instance Dump DocTests where
     = text "group" <+> dump name <> text "," <+> dump loc <> text ":" $$ dump tests
   dump (TestExample line) = text "example:" $$ dump line
   dump (TestProperty prop) = text "property:" $$ dump prop
-  dump (TestExampleRich rich) = text "rich-example:" $$ dump rich
+  dump (TestMultiline content) = text "multiline:" $$ dump content
+  dump (Capture content body) = text "capture:" $$ nest 2 (dump content $$ text "body:" $$ dump body)
+  dump (TestHook hook body) = text "hook:" $$ nest 2 (dump hook $$ text "body:" $$ dump body)
+  dump (Warning loc msg) = text "warning (" <> dump loc <> text "): " <> dump msg
 
 instance Dump ExampleLine where
   dump l = text "program:" <+> dump l.programLine
     $$ dumpTitleList True (text "expected:") l.expectedOutput
 
-instance Dump RichExample where
-  dump r = text "programBlock:" <+> dump r.programBlock
-    $$ text "outputText:" <+> dump r.outputText
-    $$ text "capturedText:" <+> dump r.capturedText
+instance Dump Entity where
+  dump = text . show
 
-instance Dump ProcessedText where
-  dump p = text "rawTextString:" <+> dump p.rawTextString
-    $$ text "identifier:" <+> dump p.identifier
+instance Dump CapturedContent where
+  dump c = text "variableName:" <+> dump c.variableName
+    $$ text "captureMethod:" <+> dump c.captureMethod
+    $$ text "textContent:" <+> dump c.variableName
+
+instance Dump CaptureMethod where
+  dump = text . show
+
+instance Dump IOHook where
+  dump hook = text "flavour:" <+> dump hook.flavour
+    $$ text "variables:" $$ dump hook.variables
+    $$ text "setupCode:" $$ dump hook.setupCode
+
+instance Dump HookFlavour where
+  dump = text . show
