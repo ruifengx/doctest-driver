@@ -57,11 +57,12 @@ infix 1 `shouldMatch`
 -- Right ()
 -- >>> try @HUnitFailure (Verbatim "aaa\nccc\nddd\nbbb" `shouldMatch` "aaa\n...\nbbb")
 -- Right ()
-shouldMatch :: (HasCallStack, Show a) => a -> String -> Assertion
-shouldMatch actual expected = unless (match (parsePattern expected) sActual) onError
-  where sActual = show actual
-        err = HUnitFailure location (ExpectedButGot Nothing expected sActual)
-        onError = expected `deepseq` sActual `deepseq` throwIO err
+shouldMatch :: (HasCallStack, ReplAction a, Show (ReplResult a)) => a -> String -> Assertion
+shouldMatch actual expected = do
+  sActual <- show <$> replAction actual
+  let err = HUnitFailure location (ExpectedButGot Nothing expected sActual)
+  let onError = expected `deepseq` sActual `deepseq` throwIO err
+  unless (match (parsePattern expected) sActual) onError
 
 -- | Result type of running as a 'ReplAction'. Unfortunately, this cannot handle polymorphic types
 -- without a known top-level type constructor.
