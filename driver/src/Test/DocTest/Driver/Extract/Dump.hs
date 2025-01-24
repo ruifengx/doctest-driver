@@ -38,7 +38,7 @@ hPrintDoc = P.printDoc (PageMode False) 100
 printDoc :: Doc -> IO ()
 printDoc = hPrintDoc stdout
 
--- | Convenience function for converting a GHC 'Doc' to a 'String'.
+-- | Convenience function for converting a GHC 'Doc' to a t'String'.
 stringDoc :: Doc -> String
 stringDoc = P.renderStyle P.style
 

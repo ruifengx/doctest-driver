@@ -1,7 +1,12 @@
+-- | Description: DocTest abstract syntax trees.
+-- Copyright: Copyright 2025, Ruifeng Xie
+-- License: AGPL-3.0-or-later
+-- Maintainer: Ruifeng Xie <ruifengx@outlook.com>
+--
+-- DocTests syntax trees and extraction from source code parsed using the GHC API.
 module Test.DocTest.Driver.Extract.Ast
   -- * Location Information
   ( Loc
-  , toLoc
   -- * Entities
   , EntityKind (..)
   , Entity (..)
@@ -12,7 +17,6 @@ module Test.DocTest.Driver.Extract.Ast
   , extractModule
   , DocTests (..)
   , DocLine (..)
-  , emptyLine
   , spanDocLine
   , ExampleLine (..)
   , CapturedContent (..)
@@ -212,20 +216,22 @@ data ExampleLine = ExampleLine
   , expectedOutput :: [DocLine] -- ^ Output text lines.
   } deriving stock (Show, Eq)
 
+-- | Captured text content, made available as a variable.
 data CapturedContent = Captured
-  { variableName  :: String
-  , captureMethod :: CaptureMethod
-  , textContent   :: NonEmpty String
+  { variableName  :: String           -- ^ Name of the variable to bring into scope.
+  , captureMethod :: CaptureMethod    -- ^ How the text content is captured.
+  , textContent   :: NonEmpty String  -- ^ Text content to be captured.
   } deriving stock (Show, Eq)
 
+-- | Different ways of capturing text contents.
 data CaptureMethod
-  = String
-  | TextStrict
-  | TextLazy
-  | ByteStringStrict
-  | ByteStringLazy
-  | ShortByteString
-  | TempFile
+  = String            -- ^ t'String' variable.
+  | TextStrict        -- ^ Strict @Text@ variable (from @Data.Text@).
+  | TextLazy          -- ^ Lazy @Text@ variable (from @Data.Text.Lazy@).
+  | ByteStringStrict  -- ^ Strict @ByteString@ variable (from @Data.ByteString@).
+  | ByteStringLazy    -- ^ Lazy @ByteString@ variable (from @Data.ByteString.Lazy@).
+  | ShortByteString   -- ^ @ShortByteString@ variable (from @Data.ByteString.Short@).
+  | TempFile          -- ^ Save as a temporary file, provide as a 'FilePath' variable.
   deriving stock Eq
 
 instance Show CaptureMethod where
@@ -237,17 +243,19 @@ instance Show CaptureMethod where
   show ShortByteString  = "ShortByteString"
   show TempFile         = "FilePath"
 
+-- | 'IO' actions to be performed throughout the test lifetime.
 data IOHook = IOHook
-  { flavour   :: HookFlavour
-  , variables :: [String]
-  , setupCode :: NonEmpty DocLine
+  { flavour   :: HookFlavour      -- ^ Occasions when the 'IO' action is expected to run.
+  , variables :: [String]         -- ^ List of variable names brought into scope by this hook.
+  , setupCode :: NonEmpty DocLine -- ^ The code for the action.
   } deriving stock (Show, Eq)
 
+-- | Occasions to run an 'IOHook'.
 data HookFlavour
-  = Before
-  | BeforeAll
-  | After
-  | AfterAll
+  = Before    -- ^ Once before each test case (result is freshly generated).
+  | BeforeAll -- ^ Once before all test cases (result is shared).
+  | After     -- ^ Once after each test case.
+  | AfterAll  -- ^ Once after all test cases.
   deriving stock Eq
 
 instance Show HookFlavour where
@@ -272,19 +280,35 @@ data Module = Module
   , testCases  :: [DocTests]  -- ^ Extracted test cases.
   } deriving stock Show
 
+-- | Extract a 'Module' from a GHC 'ParsedModule'.
+--
+-- === Implementation Note
+--
+-- The documentation in a 'ParsedModule' is first extracted into a doc-tree (via 'GHC.collectDocs').
+-- By design, doctest instructions can appear as group names (Haddock markup @\$group-name@) and as
+-- comments in verbatim code block (Haddock markup @\@...\@@). Inside this doc-tree, we inspect
+-- these places, recognise the instructions, and apply the instructions. Some instructions modify
+-- their parent scope ('Capture's and 'IOHook's bring new names in scope), so we float them above.
 extractModule :: ParsedModule -> Module
 extractModule m
-  -- TODO: export list
   = unLoc m.pm_parsed_source
   & GHC.hsmodDecls
+  -- TODO: export list
   & List.sortBy (GHC.leftmost_smallest `on` getLocA)
   & GHC.collectDocs
+  -- GHC doc-tree: [decl * [doc]]
   & concatMap (uncurry toDocTree)
+  -- abstract doc-tree
   & map parseInstructions
   & mapTreeList (either (uncurry docWithInstruction) docNoInstruction)
+  -- instructions extracted & properly attached
   & partitionTreeList (either (uncurry handleInstruction) pure)
+  -- instructions applied
   & second (resolveScopes . map finaliseDocTree)
+  -- doc-tree => doctest
+  -- capture and hook floated above its parent scope
   & uncurry (collectModule m)
+  -- module information collected
 
 collectModule :: ParsedModule -> SetupCode -> [DocTests] -> Module
 collectModule m setup testCases = Module{ filePath, modulePath, importList, topSetup, testCases }
