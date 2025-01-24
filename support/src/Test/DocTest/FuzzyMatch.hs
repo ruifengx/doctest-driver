@@ -14,6 +14,9 @@ import Test.DocTest.FuzzySyntax (Pattern, Segment (..))
 import Text.ParserCombinators.ReadP (ReadP, readP_to_S)
 import Text.ParserCombinators.ReadP qualified as P
 
+-- $setup
+-- >>> import Test.DocTest.FuzzySyntax
+
 -- | Match the 'String' with the given 'Pattern'.
 --
 -- * No wildcard:

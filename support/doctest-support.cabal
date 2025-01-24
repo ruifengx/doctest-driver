@@ -82,5 +82,12 @@ library
 test-suite doctest-support-test
   import: base, binary
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  hs-source-dirs: test
+  main-is: Main.hs
+  build-depends:
+    HUnit ^>=1.6.2.0,
+    base ^>=4.18.2.0,
+    doctest-support,
+    hspec ^>=2.11.7,
+
+  build-tool-depends: doctest-driver:doctest-driver
+  code-generators: doctest-driver

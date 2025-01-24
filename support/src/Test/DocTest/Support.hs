@@ -32,6 +32,9 @@ infix 1 `shouldMatch`
 
 -- $setup
 -- >>> import Control.Exception (try)
+-- >>> import Test.HUnit.Lang
+-- >>> import Test.DocTest.FuzzyMatch
+-- >>> import Test.DocTest.FuzzySyntax
 
 -- | Expect that the value @a@, when 'show'n, 'match'es the pattern string.
 --
@@ -51,8 +54,10 @@ infix 1 `shouldMatch`
 -- >>> try @HUnitFailure ("some fancy string" `shouldMatch` "\"some ... string\"")
 -- Right ()
 --
--- >>> data Verbatim = Verbatim String
--- >>> instance Show Verbatim where show (Verbatim s) = s
+-- > -- doctest:setup-top
+-- > data Verbatim = Verbatim String
+-- > instance Show Verbatim where show (Verbatim s) = s
+--
 -- >>> try @HUnitFailure (Verbatim "aaa\n\nbbb" `shouldMatch` "aaa\n...\nbbb")
 -- Right ()
 -- >>> try @HUnitFailure (Verbatim "aaa\nccc\nddd\nbbb" `shouldMatch` "aaa\n...\nbbb")
