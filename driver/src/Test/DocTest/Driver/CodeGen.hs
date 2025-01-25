@@ -183,7 +183,7 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
   where header = "it" <+> label <+> "$" <+> bindVars <+> "do"
         label = textShow ("example group (" <> locLine loc <> ")")
         loc = let l = NonEmpty.head exampleLines in l.programLine.location
-        contents = vcat (fmap genExample exampleLines)
+        contents = markVarsUsed $$ vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
 genDocTests (TestMultiline testLines) = genMultiline testLines
 genDocTests (TestHook hook tests) = genHook hook (genDocTestList (Just "hook") tests)
@@ -206,7 +206,7 @@ genMultiline :: NonEmpty DocLine -> Doc
 genMultiline ls@(l :| _) = header $$ program
   where header = "it" <+> textShow label <+> "$" <+> bindVars <+> "do"
         label = "example (" <> locLine l.location <> ")"
-        program = vcat (map lineDoc (NonEmpty.toList ls))
+        program = markVarsUsed $$ vcat (map lineDoc (NonEmpty.toList ls))
 
 genHook :: IOHook -> Doc -> Doc
 genHook hook = hookGenFunction hook.flavour hook.variables (vcat (fmap lineDoc hook.setupCode))
@@ -223,6 +223,9 @@ genBinders :: [String] -> Doc
 genBinders []   = error "avoid generating binders when no variable is in scope"
 genBinders [x]  = text x
 genBinders vars = "(" <> hcat (intersperse ", " (map text vars)) <> ")"
+
+markVarsUsed :: Doc
+markVarsUsed = ask >>= \vars -> unless (null vars) ("markUsed" <+> genBinders vars)
 
 bindVars :: Doc
 bindVars = ask >>= \vars -> unless (null vars) ("\\" <> genBinders vars <+> "->")

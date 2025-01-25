@@ -9,6 +9,7 @@ module Test.DocTest.Support
   , ReplResult
   , ReplAction (..)
   , withWriteTempFile
+  , markUsed
   ) where
 
 import Control.DeepSeq (deepseq)
@@ -100,3 +101,8 @@ instance {-# OVERLAPPING #-} ReplAction (IO a) where
 withWriteTempFile :: (FilePath -> IO a) -> String -> IO a
 withWriteTempFile act contents = withSystemTempFile "doctest.txt" go
   where go path h = hSetBinaryMode h True *> hPutStr h contents *> hClose h *> act path
+
+-- | No-op function. Used to silence the "variable unused" warning.
+markUsed :: a -> IO ()
+markUsed _ = pure ()
+{-# INLINE markUsed #-}
