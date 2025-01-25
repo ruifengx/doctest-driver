@@ -8,6 +8,7 @@ module Test.DocTest.Support
   ( shouldMatch
   , ReplResult
   , ReplAction (..)
+  , withWriteTempFile
   ) where
 
 import Control.DeepSeq (deepseq)
@@ -17,6 +18,8 @@ import Data.CallStack (HasCallStack, SrcLoc, callStack)
 import Data.Kind (Type)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as N (last)
+import System.IO (hClose, hPutStr, hSetBinaryMode)
+import System.IO.Temp (withSystemTempFile)
 import Test.DocTest.FuzzyMatch (match)
 import Test.DocTest.FuzzySyntax (parsePattern)
 import Test.HUnit.Lang (Assertion, FailureReason (..), HUnitFailure (..))
@@ -91,3 +94,9 @@ instance a ~ ReplResult a => ReplAction a where
 
 instance {-# OVERLAPPING #-} ReplAction (IO a) where
   replAction = id
+
+-- | Create a temporary file, write the given contents, run the action with the 'FilePath', and
+-- remove the file at last. Used to implement 'FilePath' captures.
+withWriteTempFile :: (FilePath -> IO a) -> String -> IO a
+withWriteTempFile act contents = withSystemTempFile "doctest.txt" go
+  where go path h = hSetBinaryMode h True *> hPutStr h contents *> hClose h *> act path

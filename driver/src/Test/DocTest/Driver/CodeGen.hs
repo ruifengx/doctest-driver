@@ -24,9 +24,11 @@ import Control.Monad.State (MonadState (get, put), State, evalState)
 import Control.Monad.Writer (MonadWriter (pass, tell), WriterT (..), execWriterT)
 import Data.Char (isSpace)
 import Data.Coerce (coerce)
-import Data.List (intercalate, intersperse)
+import Data.Foldable (fold)
+import Data.List (intercalate, intersperse, uncons)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty (fromList, head, toList)
+import Data.Maybe (fromJust)
 import Data.Monoid (Ap (Ap))
 import Data.String (IsString (fromString))
 import GHC.Show (showLitString)
@@ -102,7 +104,7 @@ Doc l $$ Doc r = Doc $ WriterT do
   pure ((), MDoc (dl P.$$ dr))
 
 hcat :: Foldable f => f Doc -> Doc
-hcat = foldr (<>) mempty
+hcat = fold
 
 vcat :: Foldable f => f Doc -> Doc
 vcat = foldr ($$) mempty
@@ -207,37 +209,50 @@ genMultiline ls@(l :| _) = header $$ program
         program = vcat (map lineDoc (NonEmpty.toList ls))
 
 genHook :: IOHook -> Doc -> Doc
-genHook hook = genHookRaw hook.flavour hook.variables (vcat (fmap lineDoc hook.setupCode))
+genHook hook = hookGenFunction hook.flavour hook.variables (vcat (fmap lineDoc hook.setupCode))
 
-isBeforeHook :: HookFlavour -> Bool
-isBeforeHook Before    = True
-isBeforeHook BeforeAll = True
-isBeforeHook After     = False
-isBeforeHook AfterAll  = False
+hookGenFunction :: HookFlavour -> [String] -> Doc -> Doc -> Doc
+hookGenFunction Before    = genBeforeHook "before"
+hookGenFunction BeforeAll = genBeforeHook "beforeAll"
+hookGenFunction After     = genAfterHook "after"
+hookGenFunction AfterAll  = genAfterHook "afterAll"
+hookGenFunction Around    = uncurry (genAroundHook "around") . fromJust . uncons
+hookGenFunction AroundAll = uncurry (genAroundHook "aroundAll") . fromJust . uncons
 
 genBinders :: [String] -> Doc
+genBinders []   = error "avoid generating binders when no variable is in scope"
+genBinders [x]  = text x
 genBinders vars = "(" <> hcat (intersperse ", " (map text vars)) <> ")"
 
 bindVars :: Doc
 bindVars = ask >>= \vars -> unless (null vars) ("\\" <> genBinders vars <+> "->")
 
-genHookRaw :: HookFlavour -> [String] -> Doc -> Doc -> Doc
-genHookRaw flavour vars hookBody tests | isBeforeHook flavour = do
+genBeforeHook, genAfterHook :: String -> [String] -> Doc -> Doc -> Doc
+genBeforeHook flavour vars hookBody tests = do
   oldVars <- ask
   -- null vars: no new variables added, use before[All]_
   -- null oldVars: no old variables (we can just return vars), use before[All]
   -- otherwise: get old variables and add new, use before[All]With
-  let hookFunc = textShow flavour <> if null vars then "_" else unless (null oldVars) "With"
+  let hookFunc = text flavour <> if null vars then "_" else unless (null oldVars) "With"
   -- oldVars binders: bind every old variable in sequence
   let binders = unless (null vars || null oldVars) ("\\" <> genBinders oldVars <+> "->")
   let updateVars = unless (null vars && null oldVars) ("pure" <+> genBinders (vars ++ oldVars))
   let hook = "(" <> binders <+> "do" <+> (hookBody $$ updateVars) <> ")"
   hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
-genHookRaw flavour vars hookBody tests = do
-  let hookFunc = textShow flavour <> when (null vars) "_"
+genAfterHook flavour vars hookBody tests = do
+  let hookFunc = text flavour <> when (null vars) "_"
   oldVars <- asks (map (\x -> if x `elem` vars then x else "_"))
   -- oldVars binders: bind every (used) old variable in sequence
   let binders = unless (null vars) ("\\" <> genBinders oldVars <+> "->")
+  let hook = "(" <> binders <+> "do" <+> hookBody <> ")"
+  hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
+
+genAroundHook :: String -> String -> [String] -> Doc -> Doc -> Doc
+genAroundHook flavour cont vars hookBody tests = do
+  oldVars <- asks (map (\x -> if x `elem` vars then x else "_"))
+  -- hookFunc & binders: same with genBeforeHook
+  let hookFunc = text flavour <> if null vars then "_" else unless (null oldVars) "With"
+  let binders = "\\" <> text cont <+> unless (null vars || null oldVars) (genBinders oldVars) <+> "->"
   let hook = "(" <> binders <+> "do" <+> hookBody <> ")"
   hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
 
@@ -249,10 +264,12 @@ genCapture content tests = case content.captureMethod of
   ByteStringStrict -> pureBind "byteStringStrict"
   ByteStringLazy   -> pureBind "byteStringLazy"
   ShortByteString  -> pureBind "shortByteString"
-  TempFile         -> genHookRaw BeforeAll [content.variableName] hookBody tests
+  TempFile         -> genAroundHook "aroundAll" "doctest_cont" [content.variableName] hookBody tests
   where s = multilineString content.textContent
         pureBind f = "let" <+> (text content.variableName <+> "=" <+> f $$ nest 2 s) $$ tests
-        hookBody = text content.variableName <> " <- writeTempFile" $$ nest 2 s
+        hookBody = "withWriteTempFile (\\" <> cont <> ")" $$ nest 2 s
+        cont = text content.variableName <+> "-> doctest_cont" <+> vars
+        vars = asks (++ [content.variableName]) >>= genBinders
 
 genWarning :: Loc -> String -> Doc
 genWarning loc msg = "pendingWith" <+> textShow (locLine loc ++ ": " ++ msg)

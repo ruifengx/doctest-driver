@@ -251,11 +251,14 @@ data IOHook = IOHook
   } deriving stock (Show, Eq)
 
 -- | Occasions to run an 'IOHook'.
+-- 'Around' and 'AroundAll' must capture the continuation as the first parameter.
 data HookFlavour
   = Before    -- ^ Once before each test case (result is freshly generated).
   | BeforeAll -- ^ Once before all test cases (result is shared).
   | After     -- ^ Once after each test case.
   | AfterAll  -- ^ Once after all test cases.
+  | Around    -- ^ Once around each test case (wrapper runs multiple times).
+  | AroundAll -- ^ Once around all test cases (wrapper runs exactly once).
   deriving stock Eq
 
 instance Show HookFlavour where
@@ -263,6 +266,8 @@ instance Show HookFlavour where
   show BeforeAll = "beforeAll"
   show After     = "after"
   show AfterAll  = "afterAll"
+  show Around    = "around"
+  show AroundAll = "aroundAll"
 
 data SetupCode = SetupCode
   { setupImport :: [(String, NonEmpty DocLine)]
@@ -420,7 +425,8 @@ ident = (:)
 pInstruction :: R.ReadP Instruction
 pInstruction
   =   pSetup <*> R.option "" (paren anything)
-  <|> pHook <*> R.option [] (paren (ident `R.sepBy` text ","))
+  <|> pBeforeAfterHook <*> R.option [] (paren pArgs)
+  <|> pAroundHook <*> R.option [] (paren pAroundArgs)
   <|> text "test" $> IsExample
   <|> text "property" $> IsProperty
   <|> text "capture" *> paren (CaptureText <$> lexeme ident <* text "::" <*> lexeme pCaptureMethod)
@@ -431,12 +437,21 @@ pSetup
   <|> SetupOther <$ text "setup-top"
   <|> SetupAuto <$ text "setup"
 
-pHook :: R.ReadP ([String] -> Instruction)
-pHook
-  =   UseHook Before <$ text "before"
-  <|> UseHook BeforeAll <$ text "beforeAll"
-  <|> UseHook After <$ text "after"
-  <|> UseHook AfterAll <$ text "afterAll"
+pBeforeAfterHook :: R.ReadP ([String] -> Instruction)
+pBeforeAfterHook = pHookOf [Before, BeforeAll, After, AfterAll]
+
+pHookOf :: [HookFlavour] -> R.ReadP ([String] -> Instruction)
+pHookOf = R.choice . map branch
+  where branch flavour = UseHook flavour <$ text (show flavour)
+
+pArgs :: R.ReadP [String]
+pArgs = ident `R.sepBy` text ","
+
+pAroundHook :: R.ReadP ([String] -> Instruction)
+pAroundHook = pHookOf [Around, AroundAll]
+
+pAroundArgs :: R.ReadP [String]
+pAroundArgs = (:) <$> (text "cont" *> text "=" *> ident) <*> R.option [] (text "," *> pArgs)
 
 pCaptureMethod :: R.ReadP CaptureMethod
 pCaptureMethod
