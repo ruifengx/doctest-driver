@@ -178,13 +178,7 @@ genDocTests (Group name loc tests) = header $$ nest 2 (genDocTestList Nothing te
   where header = "describe " <> textShow (show name <> groupName) <> " $ do"
         groupName = either (const "") (\l -> " (line " <> show (srcLocLine l) <> ")") loc
 genDocTests (TestExample exampleLines) = header $$ nest 2 contents
-  where header = if nTests == 1 then "do" else
-          key <+> label <+> "$" <+> when (nTests == 0) bindVars <+> "do"
-        key = if nTests == 0 then "it" else "describe"
-        nTests = testCount exampleLines
-        -- nTests == 0: use "it", the whole group is a test, but no "it" for example lines
-        -- nTests == 1: use "do", no need to introduce the group layer for a single test
-        -- nTests == 2: use "describe", we need a group only in this case
+  where header = "it" <+> label <+> "$" <+> bindVars <+> "do"
         label = textShow ("example group (" <> locLine loc <> ")")
         loc = let l = NonEmpty.head exampleLines in l.programLine.location
         contents = vcat (fmap genExample exampleLines)
@@ -197,19 +191,9 @@ genDocTests (Warning loc msg) = genWarning loc msg
 genExample :: ExampleLine -> Doc
 genExample l
   | null l.expectedOutput = program
-  | otherwise = header $$ nest 2 ("(" <> program <> ")" $$ nest 2 ("`shouldMatch`" $$ expected))
-  where header = "it" <+> label <+> "$" <+> bindVars <+> "do"
-        label = textShow ("example (" <> locLine l.programLine.location <> ")")
-        program = lineDoc l.programLine
+  | otherwise = "(" <> program <> ")" $$ nest 2 ("`shouldMatch`" $$ expected)
+  where program = lineDoc l.programLine
         expected = multilineString ((.textLine) <$> NonEmpty.fromList l.expectedOutput)
-
-testCount :: NonEmpty ExampleLine -> Int
-testCount = go 0 . NonEmpty.toList
-  where go n [] = n
-        go n (line : rest)
-          | null line.expectedOutput = go n rest
-          | n == 1 = 2
-          | otherwise = go (succ n) rest
 
 genProperty :: NonEmpty DocLine -> Doc
 genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
