@@ -178,7 +178,8 @@ genDocTests (Group name loc tests) = header $$ nest 2 (genDocTestList Nothing te
   where header = "describe " <> textShow (show name <> groupName) <> " $ do"
         groupName = either (const "") (\l -> " (line " <> show (srcLocLine l) <> ")") loc
 genDocTests (TestExample exampleLines) = header $$ nest 2 contents
-  where header = if nTests == 1 then "do" else key <+> label <> " $ do"
+  where header = if nTests == 1 then "do" else
+          key <+> label <+> "$" <+> when (nTests == 0) bindVars <+> "do"
         key = if nTests == 0 then "it" else "describe"
         nTests = testCount exampleLines
         -- nTests == 0: use "it", the whole group is a test, but no "it" for example lines
@@ -189,7 +190,6 @@ genDocTests (TestExample exampleLines) = header $$ nest 2 contents
         contents = vcat (fmap genExample exampleLines)
 genDocTests (TestProperty propLine) = genProperty propLine
 genDocTests (TestMultiline testLines) = genMultiline testLines
--- TODO: need to add new variables to the environment
 genDocTests (TestHook hook tests) = genHook hook (genDocTestList (Just "hook") tests)
 genDocTests (Capture content tests) = genCapture content (genDocTestList (Just "capture") tests)
 genDocTests (Warning loc msg) = genWarning loc msg
@@ -198,7 +198,7 @@ genExample :: ExampleLine -> Doc
 genExample l
   | null l.expectedOutput = program
   | otherwise = header $$ nest 2 ("(" <> program <> ")" $$ nest 2 ("`shouldMatch`" $$ expected))
-  where header = "it " <> label <> " $ do"
+  where header = "it" <+> label <+> "$" <+> bindVars <+> "do"
         label = textShow ("example (" <> locLine l.programLine.location <> ")")
         program = lineDoc l.programLine
         expected = multilineString ((.textLine) <$> NonEmpty.fromList l.expectedOutput)
@@ -218,7 +218,7 @@ genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
 
 genMultiline :: NonEmpty DocLine -> Doc
 genMultiline ls@(l :| _) = header $$ program
-  where header = "it " <> textShow label <> " $ do"
+  where header = "it" <+> textShow label <+> "$" <+> bindVars <+> "do"
         label = "example (" <> locLine l.location <> ")"
         program = vcat (map lineDoc (NonEmpty.toList ls))
 
@@ -231,6 +231,12 @@ isBeforeHook BeforeAll = True
 isBeforeHook After     = False
 isBeforeHook AfterAll  = False
 
+genBinders :: [String] -> Doc
+genBinders vars = "(" <> hcat (intersperse ", " (map text vars)) <> ")"
+
+bindVars :: Doc
+bindVars = ask >>= \vars -> unless (null vars) ("\\" <> genBinders vars <+> "->")
+
 genHookRaw :: HookFlavour -> [String] -> Doc -> Doc -> Doc
 genHookRaw flavour vars hookBody tests | isBeforeHook flavour = do
   oldVars <- ask
@@ -239,15 +245,16 @@ genHookRaw flavour vars hookBody tests | isBeforeHook flavour = do
   -- otherwise: get old variables and add new, use before[All]With
   let hookFunc = textShow flavour <> if null vars then "_" else unless (null oldVars) "With"
   -- oldVars binders: bind every old variable in sequence
-  let binders = "\\(" <> hcat (intersperse ", " (map text oldVars)) <> ") ->"
-  let hook = "(" <> unless (null vars || null oldVars) binders <+> "do" <+> hookBody <> ")"
+  let binders = unless (null vars || null oldVars) ("\\" <> genBinders oldVars <+> "->")
+  let updateVars = unless (null vars && null oldVars) ("pure" <+> genBinders (vars ++ oldVars))
+  let hook = "(" <> binders <+> "do" <+> (hookBody $$ updateVars) <> ")"
   hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
 genHookRaw flavour vars hookBody tests = do
   let hookFunc = textShow flavour <> when (null vars) "_"
   oldVars <- asks (map (\x -> if x `elem` vars then x else "_"))
   -- oldVars binders: bind every (used) old variable in sequence
-  let binders = "\\(" <> hcat (intersperse ", " (map text oldVars)) <> ") ->"
-  let hook = "(" <> unless (null vars) binders <+> "do" <+> hookBody <> ")"
+  let binders = unless (null vars) ("\\" <> genBinders oldVars <+> "->")
+  let hook = "(" <> binders <+> "do" <+> hookBody <> ")"
   hookFunc $$ nest 2 (hook <+> "do" $$ local (++ vars) tests)
 
 genCapture :: CapturedContent -> Doc -> Doc
