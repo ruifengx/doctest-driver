@@ -38,10 +38,10 @@ import Data.Function (on, (&))
 import Data.Functor (void, ($>), (<&>))
 import Data.Functor.Compose (Compose (..))
 import Data.Generics (Data, Typeable, everything, mkQ)
-import Data.List qualified as List (intercalate, isPrefixOf, sortBy, sortOn, stripPrefix)
+import Data.List qualified as List
 import Data.List.NonEmpty (NonEmpty (..), nonEmpty)
 import Data.List.NonEmpty qualified as NonEmpty
-import Data.Maybe (catMaybes, fromJust, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, mapMaybe, maybeToList)
 import Data.Monoid (First (..))
 import Data.Semigroup (Min (..))
 import GHC.Generics (Generic, Generically (..))
@@ -73,7 +73,8 @@ advanceLocBy n = fmap (\loc -> GHC.mkRealSrcLoc (GHC.srcLocFile loc) (GHC.srcLoc
 
 -- | Kind of declared entities.
 data EntityKind
-  = DataFamily        -- ^ @data family@.
+  = Section           -- ^ Haddock section heading.
+  | DataFamily        -- ^ @data family@.
   | TypeFamily        -- ^ @type family@, open or closed.
   | NewType           -- ^ @newtype@.
   | DataType          -- ^ @data@.
@@ -96,6 +97,7 @@ data Entity = Entity
 
 instance Show Entity where
   show Entity{ name = unpackFS -> name, kind } = case kind of
+    Section          -> name
     DataFamily       -> "data family " <> name
     TypeFamily       -> "type family " <> name
     NewType          -> "newtype " <> name
@@ -297,12 +299,7 @@ data Module = Module
 extractModule :: ParsedModule -> Module
 extractModule m
   = unLoc m.pm_parsed_source
-  & GHC.hsmodDecls
-  -- TODO: export list
-  & List.sortBy (GHC.leftmost_smallest `on` getLocA)
-  & GHC.collectDocs
-  -- GHC doc-tree: [decl * [doc]]
-  & concatMap (uncurry toDocTree)
+  & moduleDocs
   -- abstract doc-tree
   & map parseInstructions
   & mapTreeList (either (uncurry docWithInstruction) docNoInstruction)
@@ -314,6 +311,50 @@ extractModule m
   -- capture and hook floated above its parent scope
   & uncurry (collectModule m)
   -- module information collected
+
+moduleDocs :: GHC.HsModule GhcPs -> [DocTree (Either (String, LDoc) Doc)]
+moduleDocs m = moduleHeaderDocs m ++ moduleExportDocs m ++ moduleDeclDocs m
+
+moduleHeaderDocs :: GHC.HsModule GhcPs -> [DocTree (Either (String, LDoc) Doc)]
+moduleHeaderDocs
+  = map (DocEntry . Right . unLoc)
+  . maybeToList
+  . GHC.hsmodHaddockModHeader
+  . GHC.hsmodExt
+
+moduleExportDocs :: GHC.HsModule GhcPs -> [DocTree (Either (String, LDoc) Doc)]
+moduleExportDocs = exportToDocs . map unLoc . maybe [] unLoc . GHC.hsmodExports
+
+-- NOTE: GHC 9.10.1 has 'Doc' attached to exported names
+-- those fields do not exist in GHC 9.6.6, so all we care about here is group and entry
+exportToDocs :: [GHC.IE GhcPs] -> [DocTree (Either (String, LDoc) Doc)]
+exportToDocs (GHC.IEGroup _ level name : xs) = current : exportToDocs rest
+  where current = DocGroup entity (toLoc (GHC.srcSpanStart (getLoc name))) (exportToDocs children)
+        entity = Entity{ kind = Section, name = singleLineDoc (unLoc name) }
+        (children, rest) = span (inDocGroup level) xs
+exportToDocs (GHC.IEDoc _ doc : xs) = DocEntry (Right (unLoc doc)) : exportToDocs xs
+exportToDocs (_ : xs) = exportToDocs xs
+exportToDocs [] = []
+
+inDocGroup :: Int -> GHC.IE GhcPs -> Bool
+inDocGroup n (GHC.IEGroup _ level _) = level > n
+inDocGroup _ _                       = True
+
+singleLineDoc :: Doc -> FastString
+singleLineDoc doc = case GHC.hsDocString doc of
+  GHC.MultiLineDocString _ lcs
+    | L _ line :| [] <- lcs -> mkFastString (trim (GHC.unpackHDSC line))
+    | otherwise -> error "singleLineDoc: found multiline documentation"
+  GHC.NestedDocString _ _ -> error "singleLineDoc: found multiline documentation"
+  GHC.GeneratedDocString _ -> error "singleLineDoc: found generated documentation"
+  where trim = List.dropWhileEnd isSpace . dropWhile isSpace
+
+moduleDeclDocs :: GHC.HsModule GhcPs -> [DocTree (Either (String, LDoc) Doc)]
+moduleDeclDocs
+  = concatMap (uncurry toDocTree)
+  . GHC.collectDocs
+  . List.sortBy (GHC.leftmost_smallest `on` getLocA)
+  . GHC.hsmodDecls
 
 collectModule :: ParsedModule -> SetupCode -> [DocTests] -> Module
 collectModule m setup testCases = Module{ filePath, modulePath, importList, topSetup, testCases }
