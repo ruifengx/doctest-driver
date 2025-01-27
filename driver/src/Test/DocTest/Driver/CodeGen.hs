@@ -203,7 +203,7 @@ genProperty propLines = header $$ nest 2 (vcat (fmap lineDoc propLines))
         line = "property (" <> locLine ((.location) (NonEmpty.head propLines)) <> ")"
 
 genMultiline :: NonEmpty DocLine -> Doc
-genMultiline ls@(l :| _) = header $$ program
+genMultiline ls@(l :| _) = header $$ nest 2 program
   where header = "it" <+> textShow label <+> "$" <+> bindVars <+> "do"
         label = "example (" <> locLine l.location <> ")"
         program = markVarsUsed $$ vcat (map lineDoc (NonEmpty.toList ls))
