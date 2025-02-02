@@ -12,9 +12,161 @@ module Test.DocTest.Support
   -- | Here we demonstrate features of @doctest-driver@. Readers of this documentation are
   -- encouraged to also refer to the source code of this module as an illustration.
 
+  -- ** Examples
+  -- | @doctest-driver@ supports testing Haddock examples.
+
+  -- *** REPL (Read-Eval-Print-Loop) Style Examples
+  -- | Each example is one program line starting with @>>>@ followed by zero or more result lines.
+  --
+  -- >>> "hello" ++ ", " ++ "world"
+  -- "hello, world"
+  --
+  -- Since @doctest-driver@ extracts the doctests to a test suite and does not rely on GHCi, there
+  -- are some subtle edge cases to be aware of.
+  --
+  -- 1. GHCi supports evaluating both pure values and 'IO' actions. @doctest-driver@ also supports
+  -- this via the type class 'ReplAction' and type family 'ReplResult'. As a result, if the target
+  -- expression to be evaluated has a polymorphic type (in technical terms, the type is not specific
+  -- enough to determine whether it matches @'IO' a@ or not), the generated test suite will fail to
+  -- compile. To fix the issue, add a type signature or use @TypeApplications@ to disambiguate.
+  --
+  --     > -- this will not work
+  --     > >>> 6 * 7
+  --     > 42
+  --
+  --     >>> (6 * 7) :: Int
+  --     42
+  --
+  -- 2. GHCi displays the result as a string by calling 'show'. The well-known @doctest@ library
+  -- additionally supports fuzzy result matching. To replicate these behaviours, we also call 'show'
+  -- on the program line expression, and perform fuzzy matching against the expected output lines.
+  -- This fuzzy matching is implemented in "Test.DocTest.FuzzyMatch".
+  --
+  -- 3. Haddock renders examples adjacent to each other (i.e., not separated by one or more empty
+  -- lines) as a single code block. Therefore, we generate one single @do@-block for each such
+  -- example block, which means local variables bound by @let@ or monadic bind (@<-@) are in scope
+  -- up until the current example block ends. To introduce variables shared by multiple example
+  -- groups, use one of the hook instructions explained below.
+  --
+  --     >>> let x = 3 :: Int
+  --     >>> -- x is now in scope
+  --     >>> x + 1
+  --     4
+  --
+  -- 4. The evaluator plugin in haskell-language-server (HLS) allows writing multiple examples to
+  -- be evaluated, and then (following all the examples) all of their results. This requires some
+  -- efforts to implement correctly. Additionally, this style makes it harder to tell which output
+  -- line comes from which test example, since it is possible for a single test example to have
+  -- multiple lines of output. Therefore, we do not support this style.
+  --
+  --     > -- this is not supported
+  --     > >>> 1 + 1 :: Int
+  --     > >>> 6 * 7 :: Int
+  --     > 2
+  --     > 42
+  --
+  --     The above test case would attempt run @1 + 1 :: Int@ as an 'IO' action, and compare the
+  --     result of @6 * 7 :: Int@ (after calling 'show' as explained above) with the two output
+  --     lines, which results in compile errors. The tests should be written as follows, instead:
+  --
+  --     >>> 1 + 1 :: Int
+  --     2
+  --     >>> 6 * 7 :: Int
+  --     42
+  --
+  -- 5. GHCi allows type definitions and function definitions without @let@. Since examples are put
+  -- into @do@-blocks, neither type definitions nor function definitions are allowed. To introduce
+  -- such definitions, you must promote them to the top-level using one of the @setup@ instructions
+  -- explained below. Alternatively, functions can still be defined locally using @let@.
+  --
+  -- 6. GHCi supports various commands starting with a colon (@:@). Since we do not use GHCi, these
+  -- commands are not supported in @doctest-driver@. Among all the commands, @:{@ and @:}@ are used
+  -- to start and close multiline expressions and definitions in GHCi. The @doctest@ library takes
+  -- this syntax and supports multiline test cases as follows:
+  --
+  --     > >>> :{
+  --     > first line
+  --     >   second line (indented)
+  --     >   more lines
+  --     > :}
+  --     > first line of expected output
+  --     > more output lines
+  --
+  --     Note the lack of @>>>@ markers for line 2-5: it is a clever trick to avoid the indentation
+  --     from being removed by Haddock. However, strictly speaking (from Haddock's perspective),
+  --     this test consist of a single line of code (@:{@) and five lines lines of expected output.
+  --     Over all, this syntax does not render in the same way as the test writer, and may look
+  --     confusing to users. @doctest-driver@ does not support this syntax. For multiline tests
+  --     and properties, one should use verbatim code blocks with appropriate doctest instructions
+  --     (@test@ and @property@ respectively) as explained in the following sections.
+
+  -- *** QuickCheck Properties
+  -- | Each QuickCheck property is one program line starting with @prop>@. Typically, a property is
+  -- written as a lambda expression, with multiple parameters (considered universally quantified).
+  -- The @doctest@ library allows omitting the binders; under the hood, it uses GHCi to collect the
+  -- free variables (by type-checking the expression and parsing the error messages) and implicitly
+  -- add lambda abstractions for them. QuickCheck relies on the @Arbitrary@ type class for random
+  -- generation, and thus the properties must be specific enough. The @doctest@ library uses the
+  -- @polyQuickCheck@ function (provided by QuickCheck, dependent on Template Haskell) to test the
+  -- properties, which defaults all type variables to 'Integer', making the properties monomorphic.
+  --
+  -- @doctest-driver@ cannot rely on GHCi, and it is hard to use Template Haskell (due to its phase
+  -- restrictions) in generated tests. Therefore, neither of the above features is supported. All
+  -- the free variables must be introduced explicitly through the lambda abstraction, and all input
+  -- variables should have a monomorphic type (possibly by adding type annotations).
+  --
+  -- prop> \(xs :: [Int]) -> reverse (reverse xs) == xs
+  --
+  -- This example above describes the well-recognised property for the 'reverse' function. Notice
+  -- the explicit lambda abstraction and the accompanying type annotation.
+
+  -- *** Verbatim Examples
+  -- | Haddock also allows verbatim code blocks, with each line preceded by a bird track (@>@). To
+  -- make such code blocks work as tests, use the @test@ instruction as follows:
+  --
+  -- > -- doctest:test
+  -- > (1 + 1) `shouldBe` (2 :: Int)
+  --
+  -- These examples are implicitly put into a @do@ block for the 'IO' monad, and the whole block is
+  -- copied verbatim into the generated text (except adjusting the indentation). Unlike REPL-style
+  -- examples, we cannot specify expected output lines, and the comparison must be done explicitly.
+  --
+  -- Verbatim examples are more flexible than REPL-style examples.
+  --
+  -- First, REPL-style examples call 'show' on the result to compare with the expected output lines.
+  -- When the result type does not implement 'Show', or when the 'Show' instance does not provide
+  -- sufficient meaningful information, REPL-style examples are not suitable.
+  --
+  -- Second, Haddock strips leading whitespace from test lines in REPL-style examples. To ensure the
+  -- behaviour of test examples is consistent with the way they are rendered, @doctest-driver@ also
+  -- strips the leading whitespace. This means REPL-style examples are not suitable for multiline
+  -- test cases with indentation.
+
+  -- *** Verbatim Properties
+  -- | Haddock only supports single-line properties. For multiline properties, one can write them as
+  -- verbatim examples by calling the @property@ function from QuickCheck:
+  --
+  -- > -- doctest:setup-import
+  -- > import Test.QuickCheck
+  --
+  -- (This @setup-import@ block adds an @import@ statement to the generated module. The details will
+  -- be explained in later sections, and readers can safely ignore it for now.)
+  --
+  -- > -- doctest:test
+  -- > property $ \(xs :: [Int]) ->
+  -- >   reverse (reverse xs) == xs
+  --
+  -- For this specific use case, @doctest-driver@ also provides the @property@ instruction to write
+  -- verbatim properties. One should prefer the following (using @property@) over the above (using
+  -- @test@ and call @property@ explicitly) to better express the intention concisely:
+  --
+  -- > -- doctest:property
+  -- > \(xs :: [Int]) ->
+  -- >   reverse (reverse xs) == xs
+
   -- ** Captures
   -- | Sometimes we need some textual contents in our tests, and it might also be useful to let the
-  -- user see them while browsing the documentation. In such cases, we can use the @doctest:capture@
+  -- user see them while browsing the documentation. In such cases, we can use the @capture@
   -- instruction.
   --
   -- It is most natural to start with the test cases making use of the captured variable:
