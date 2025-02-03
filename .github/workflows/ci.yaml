@@ -1,0 +1,22 @@
+name: CI
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - uses: freckle/stack-action@v5
+    - run: stack haddock
+    - name: Find Local Doc Root
+      run: |
+        PROJECT_ROOT=$(stack path --project-root)
+        LOCAL_DOC_ROOT=$(stack path --local-doc-root)
+        DOC_ROOT=$(realpath --relative-to="$PROJECT_ROOT" "$LOCAL_DOC_ROOT")
+        echo "DOC_ROOT=$DOC_ROOT" >> $GITHUB_ENV
+    - uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ${{ env.DOC_ROOT }}
