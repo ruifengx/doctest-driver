@@ -52,7 +52,7 @@ newtype NaturalOrderString = NatOrd [Either Integer String]
 -- >>> naturalOrdered "abc" < naturalOrdered "def"
 -- True
 --
--- * Natural order considers 2 < 10, while lexicographical order insists 2 > 10:
+-- * Natural order considers 2 \< 10, while lexicographical order insists 2 \> 10:
 --
 -- >>> naturalOrdered "image2" < naturalOrdered "image10"
 -- True
