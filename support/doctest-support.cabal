@@ -75,7 +75,9 @@ library
   build-depends:
     HUnit ^>=1.6.2.0,
     array ^>=0.5.6.0,
+    bytestring ^>=0.11.5.3,
     temporary ^>=1.3,
+    text ^>=2.0.2,
 
   build-tool-depends:
     alex:alex ^>=3.4.0.1
@@ -88,8 +90,10 @@ test-suite doctest-support-test
     HUnit ^>=1.6.2.0,
     QuickCheck ^>=2.14.3,
     base ^>=4.18.2.0,
+    bytestring ^>=0.11.5.3,
     doctest-support,
     hspec ^>=2.11.7,
+    text ^>=2.0.2,
 
   build-tool-depends: doctest-driver:doctest-driver
   code-generators: doctest-driver
