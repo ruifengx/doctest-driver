@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Description: &quot;Compile-time&quot; utility functions.</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Copyright: Copyright 2024, Ruifeng Xie</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License: AGPL-3.0-or-later</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer: Ruifeng Xie &lt;ruifengx@outlook.com&gt;</span><span>
+</span><span id="line-5"></span><span class="hs-comment">--</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Utility functions only used by the DocTest-driver itself during code generation. These are not</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- used at runtime by the generated code.</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Test.DocTest.Driver.Utils</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#splitBy"><span class="hs-identifier">splitBy</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#dosLines"><span class="hs-identifier">dosLines</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#NaturalOrderString"><span class="hs-identifier">NaturalOrderString</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#naturalOrdered"><span class="hs-identifier">naturalOrdered</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bifunctor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">first</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Char</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">digitToInt</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">isDigit</span></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Function</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">on</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">foldl'</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">uncons</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List.NonEmpty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NonEmpty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(:|)</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List.NonEmpty</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">NonEmpty</span></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- | Split by the given separator.</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- &gt;&gt;&gt; splitBy ' ' &quot;abc def&quot;</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- [&quot;abc&quot;,&quot;def&quot;]</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- &gt;&gt;&gt; splitBy ' ' &quot;abc  def&quot;</span><span>
+</span><span id="line-27"></span><span class="hs-comment">-- [&quot;abc&quot;,&quot;&quot;,&quot;def&quot;]</span><span>
+</span><span id="line-28"></span><span id="local-6989586621679159755"><span class="annot"><a href="Test.DocTest.Driver.Utils.html#splitBy"><span class="hs-identifier hs-type">splitBy</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Eq</span></span><span> </span><span class="annot"><a href="#local-6989586621679159755"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679159755"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679159755"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679159755"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span></span><span>
+</span><span id="line-29"></span><span id="splitBy"><span class="annot"><span class="annottext">splitBy :: forall a. Eq a =&gt; a -&gt; [a] -&gt; [[a]]
+</span><a href="Test.DocTest.Driver.Utils.html#splitBy"><span class="hs-identifier hs-var hs-var">splitBy</span></a></span></span><span> </span><span id="local-6989586621679159820"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679159820"><span class="hs-identifier hs-var">sep</span></a></span></span><span> </span><span id="local-6989586621679159821"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159821"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159822"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]] -&gt; [[a]]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[[a]] -&gt; ((a, [a]) -&gt; [[a]]) -&gt; Maybe (a, [a]) -&gt; [[a]]
+forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
+</span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [a] -&gt; [[a]]
+forall a. Eq a =&gt; a -&gt; [a] -&gt; [[a]]
+</span><a href="Test.DocTest.Driver.Utils.html#splitBy"><span class="hs-identifier hs-var">splitBy</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679159820"><span class="hs-identifier hs-var">sep</span></a></span><span> </span><span class="annot"><span class="annottext">([a] -&gt; [[a]]) -&gt; ((a, [a]) -&gt; [a]) -&gt; (a, [a]) -&gt; [[a]]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(a, [a]) -&gt; [a]
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[a] -&gt; Maybe (a, [a])
+forall a. [a] -&gt; Maybe (a, [a])
+</span><span class="hs-identifier hs-var">uncons</span></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159826"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679159822"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159822"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679159826"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159826"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+forall a. (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+</span><span class="hs-identifier hs-var">break</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679159820"><span class="hs-identifier hs-var">sep</span></a></span><span> </span><span class="hs-operator">==</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679159821"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="annot"><span class="hs-comment">-- | 'lines', but with additional support for DOS line endings (CR LF).</span></span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#dosLines"><span class="hs-identifier hs-type">dosLines</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span>
+</span><span id="line-34"></span><span id="dosLines"><span class="annot"><span class="annottext">dosLines :: String -&gt; [String]
+</span><a href="Test.DocTest.Driver.Utils.html#dosLines"><span class="hs-identifier hs-var hs-var">dosLines</span></a></span></span><span> </span><span id="local-6989586621679159829"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159829"><span class="hs-identifier hs-var">s</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159830"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">String -&gt; Bool
+forall a. [a] -&gt; Bool
+forall (t :: Type -&gt; Type) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">null</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159832"><span class="hs-identifier hs-var">rest</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">String -&gt; [String]
+</span><a href="Test.DocTest.Driver.Utils.html#dosLines"><span class="hs-identifier hs-var">dosLines</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159832"><span class="hs-identifier hs-var">rest</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679159830"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159830"><span class="hs-identifier hs-var">start</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679159832"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159832"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (String, String)
+</span><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159829"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-type">breakDosLine</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span id="breakDosLine"><span class="annot"><span class="annottext">breakDosLine :: String -&gt; (String, String)
+</span><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var hs-var">breakDosLine</span></a></span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;\r&quot;</span></span><span>              </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\n'</span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679159834"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159834"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159834"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\r'</span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\n'</span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679159835"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159835"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159835"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679159836"><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159836"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679159837"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159837"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span>           </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; String) -&gt; (String, String) -&gt; (String, String)
+forall a b c. (a -&gt; b) -&gt; (a, c) -&gt; (b, c)
+forall (p :: Type -&gt; Type -&gt; Type) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159836"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; (String, String)
+</span><a href="Test.DocTest.Driver.Utils.html#breakDosLine"><span class="hs-identifier hs-var">breakDosLine</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159837"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="annot"><span class="hs-comment">-- | String segment for natural ordering.</span></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">newtype</span><span> </span><span id="NaturalOrderString"><span class="annot"><a href="Test.DocTest.Driver.Utils.html#NaturalOrderString"><span class="hs-identifier hs-var">NaturalOrderString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="NatOrd"><span class="annot"><a href="Test.DocTest.Driver.Utils.html#NatOrd"><span class="hs-identifier hs-var">NatOrd</span></a></span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679159840"><span id="local-6989586621679159845"><span class="annot"><span class="annottext">NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+(NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; Eq NaturalOrderString
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+== :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+$c/= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+/= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679159858"><span id="local-6989586621679159863"><span id="local-6989586621679159867"><span id="local-6989586621679159871"><span id="local-6989586621679159874"><span id="local-6989586621679159877"><span id="local-6989586621679159880"><span class="annot"><span class="annottext">Eq NaturalOrderString
+Eq NaturalOrderString =&gt;
+(NaturalOrderString -&gt; NaturalOrderString -&gt; Ordering)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; Bool)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString)
+-&gt; (NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString)
+-&gt; Ord NaturalOrderString
+NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+NaturalOrderString -&gt; NaturalOrderString -&gt; Ordering
+NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: NaturalOrderString -&gt; NaturalOrderString -&gt; Ordering
+compare :: NaturalOrderString -&gt; NaturalOrderString -&gt; Ordering
+$c&lt; :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+&lt; :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+$c&lt;= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+&lt;= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+$c&gt; :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+&gt; :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+$c&gt;= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+&gt;= :: NaturalOrderString -&gt; NaturalOrderString -&gt; Bool
+$cmax :: NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString
+max :: NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString
+$cmin :: NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString
+min :: NaturalOrderString -&gt; NaturalOrderString -&gt; NaturalOrderString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- | Preprocess a string to be compared in the &quot;natural order&quot;.</span><span>
+</span><span id="line-49"></span><span class="hs-comment">--</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- * Natural order is lexicographical order if there is no digit character:</span><span>
+</span><span id="line-51"></span><span class="hs-comment">--</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- &gt;&gt;&gt; naturalOrdered &quot;abc&quot; &lt; naturalOrdered &quot;def&quot;</span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- True</span><span>
+</span><span id="line-54"></span><span class="hs-comment">--</span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- * Natural order considers 2 \&lt; 10, while lexicographical order insists 2 \&gt; 10:</span><span>
+</span><span id="line-56"></span><span class="hs-comment">--</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- &gt;&gt;&gt; naturalOrdered &quot;image2&quot; &lt; naturalOrdered &quot;image10&quot;</span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- True</span><span>
+</span><span id="line-59"></span><span class="hs-comment">--</span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- * However, using leading zeros opt into using lexicographical order.</span><span>
+</span><span id="line-61"></span><span class="hs-comment">--</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- &gt;&gt;&gt; naturalOrdered &quot;image02&quot; &gt; naturalOrdered &quot;image010&quot;</span><span>
+</span><span id="line-63"></span><span class="hs-comment">-- True</span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- &gt;&gt;&gt; naturalOrdered &quot;image100&quot; &lt; naturalOrdered &quot;image010&quot;</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- True</span><span>
+</span><span id="line-66"></span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#naturalOrdered"><span class="hs-identifier hs-type">naturalOrdered</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Utils.html#NaturalOrderString"><span class="hs-identifier hs-type">NaturalOrderString</span></a></span><span>
+</span><span id="line-67"></span><span id="naturalOrdered"><span class="annot"><span class="annottext">naturalOrdered :: String -&gt; NaturalOrderString
+</span><a href="Test.DocTest.Driver.Utils.html#naturalOrdered"><span class="hs-identifier hs-var hs-var">naturalOrdered</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Either Integer String] -&gt; NaturalOrderString
+</span><a href="Test.DocTest.Driver.Utils.html#NatOrd"><span class="hs-identifier hs-var">NatOrd</span></a></span><span> </span><span class="annot"><span class="annottext">([Either Integer String] -&gt; NaturalOrderString)
+-&gt; (String -&gt; [Either Integer String])
+-&gt; String
+-&gt; NaturalOrderString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(NonEmpty Char -&gt; Either Integer String)
+-&gt; [NonEmpty Char] -&gt; [Either Integer String]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">NonEmpty Char -&gt; Either Integer String
+forall {a}. Num a =&gt; NonEmpty Char -&gt; Either a String
+</span><a href="#local-6989586621679159892"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">([NonEmpty Char] -&gt; [Either Integer String])
+-&gt; (String -&gt; [NonEmpty Char]) -&gt; String -&gt; [Either Integer String]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Char -&gt; Bool) -&gt; String -&gt; [NonEmpty Char]
+forall (f :: Type -&gt; Type) a.
+Foldable f =&gt;
+(a -&gt; a -&gt; Bool) -&gt; f a -&gt; [NonEmpty a]
+</span><span class="hs-identifier hs-var">NonEmpty.groupBy</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">(==)</span></span><span> </span><span class="annot"><span class="annottext">(Bool -&gt; Bool -&gt; Bool) -&gt; (Char -&gt; Bool) -&gt; Char -&gt; Char -&gt; Bool
+forall b c a. (b -&gt; b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">`on`</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Bool
+</span><span class="hs-identifier hs-var">isDigit</span></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679159892"><span class="annot"><span class="annottext">go :: NonEmpty Char -&gt; Either a String
+</span><a href="#local-6989586621679159892"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679159901"><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-type">:|</span></span><span> </span><span id="local-6989586621679159902"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159902"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Char -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'0'</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">String -&gt; Bool
+forall a. [a] -&gt; Bool
+forall (t :: Type -&gt; Type) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">null</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159902"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">a -&gt; Either a String
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either a String
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; String
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159902"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Bool
+</span><span class="hs-identifier hs-var">isDigit</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Either a String
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; Char -&gt; a) -&gt; a -&gt; String -&gt; a
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b
+forall (t :: Type -&gt; Type) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldl'</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Char -&gt; a
+forall {a}. Num a =&gt; a -&gt; Char -&gt; a
+</span><a href="#local-6989586621679159903"><span class="hs-identifier hs-var">growInt</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; String
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159902"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either a String
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159901"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; String
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679159902"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>        </span><span id="local-6989586621679159903"><span class="annot"><span class="annottext">growInt :: a -&gt; Char -&gt; a
+</span><a href="#local-6989586621679159903"><span class="hs-identifier hs-var hs-var">growInt</span></a></span></span><span> </span><span id="local-6989586621679159911"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679159911"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679159912"><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159912"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679159911"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">10</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; a
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char -&gt; Int
+</span><span class="hs-identifier hs-var">digitToInt</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679159912"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span></pre></body></html>

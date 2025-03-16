@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Description: DocTest extraction.</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Copyright: Copyright 2024, Ruifeng Xie</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- License: AGPL-3.0-or-later</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Maintainer: Ruifeng Xie &lt;ruifengx@outlook.com&gt;</span><span>
+</span><span id="line-5"></span><span class="hs-comment">--</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Extracting DocTests from source code parsed using the GHC API.</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Test.DocTest.Driver.Extract</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.html#extractDocTests"><span class="hs-identifier">extractDocTests</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html"><span class="hs-identifier">Test.DocTest.Driver.Extract.Ast</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html"><span class="hs-identifier">Test.DocTest.Driver.Extract.Ast</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.GHC.html"><span class="hs-identifier">Test.DocTest.Driver.Extract.GHC</span></a></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="annot"><span class="hs-comment">-- | Extract a DocTest 'Module' from each 'FilePath', with specified compiler options.</span></span><span>
+</span><span id="line-16"></span><span class="annot"><a href="Test.DocTest.Driver.Extract.html#extractDocTests"><span class="hs-identifier hs-type">extractDocTests</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Module"><span class="hs-identifier hs-type">Module</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-17"></span><span id="extractDocTests"><span class="annot"><span class="annottext">extractDocTests :: [String] -&gt; [String] -&gt; IO [Module]
+</span><a href="Test.DocTest.Driver.Extract.html#extractDocTests"><span class="hs-identifier hs-var hs-var">extractDocTests</span></a></span></span><span> </span><span id="local-6989586621679161848"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679161848"><span class="hs-identifier hs-var">opts</span></a></span></span><span> </span><span id="local-6989586621679161849"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679161849"><span class="hs-identifier hs-var">dirs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ParsedModule -&gt; Module) -&gt; [ParsedModule] -&gt; [Module]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">ParsedModule -&gt; Module
+</span><a href="Test.DocTest.Driver.Extract.Ast.html#extractModule"><span class="hs-identifier hs-var">extractModule</span></a></span><span> </span><span class="annot"><span class="annottext">([ParsedModule] -&gt; [Module]) -&gt; IO [ParsedModule] -&gt; IO [Module]
+forall (f :: Type -&gt; Type) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; IO [ParsedModule]
+</span><a href="Test.DocTest.Driver.Extract.GHC.html#parseModulesIn"><span class="hs-identifier hs-var">parseModulesIn</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679161848"><span class="hs-identifier hs-var">opts</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679161849"><span class="hs-identifier hs-var">dirs</span></a></span><span>
+</span><span id="line-18"></span></pre></body></html>
