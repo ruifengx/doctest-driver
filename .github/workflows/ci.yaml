@@ -8,15 +8,42 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
-    - uses: freckle/stack-action@v5
-    - run: stack haddock
-    - name: Find Local Doc Root
+    - uses: haskell-actions/setup@v2
+      id: setup
+      with:
+        ghc-version: '9.6.6'
+        cabal-version: 'latest'
+        cabal-update: true
+    - name: Generate Build Plan
       run: |
-        PROJECT_ROOT=$(stack path --project-root)
-        LOCAL_DOC_ROOT=$(stack path --local-doc-root)
-        DOC_ROOT=$(realpath --relative-to="$PROJECT_ROOT" "$LOCAL_DOC_ROOT")
-        echo "DOC_ROOT=$DOC_ROOT" >> $GITHUB_ENV
+        cabal configure --enable-tests --enable-benchmarks --enable-documentation
+        cabal build all --dry-run
+    - name: Restore Cached Dependencies
+      uses: actions/cache/restore@v4
+      id: cache
+      with:
+        path: ${{ steps.setup.outputs.cabal-store }}
+        key: plan-${{ hashFiles('**/plan.json') }}
+        restore-keys: plan-
+    - name: Install Dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: cabal build all --only-dependencies
+    - name: Save Cached Dependencies
+      uses: actions/cache/save@v4
+      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        path: ${{ steps.setup.outputs.cabal-store }}
+        key: ${{ steps.cache.outputs.cache-primary-key }}
+    - name: Check doctest-driver.cabal
+      run: cabal check
+      working-directory: driver
+    - name: Check doctest-support.cabal
+      run: cabal check
+      working-directory: support
+    - run: cabal build all
+    - run: cabal test all
+    - run: cabal haddock-project
     - uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ${{ env.DOC_ROOT }}
+        publish_dir: haddocks
