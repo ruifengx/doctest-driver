@@ -1,3 +1,5 @@
 .vscode/
 .stack-work/
 dist-newstyle/
+haddocks/
+cabal.project.local
