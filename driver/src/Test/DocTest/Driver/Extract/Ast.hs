@@ -140,9 +140,9 @@ declEntity (GHC.ValD _ bind) = case bind of
   GHC.PatBind{ pat_lhs } -> gFirst pat_lhs <&> \name -> Entity{ kind = Binding, name }
   GHC.PatSynBind _ pat   -> Just Entity{ kind = PatternSynonym, name = lIdString pat.psb_id }
 declEntity (GHC.SigD _ sig) = case sig of
-  GHC.TypeSig   _ names _ -> Just Entity{ kind = Signature, name = lIdString (head names) }
-  GHC.PatSynSig _ names _ -> Just Entity{ kind = PatternSignature, name = lIdString (head names) }
-  _                       -> Nothing
+  GHC.TypeSig   _ (name : _) _ -> Just Entity{ kind = Signature, name = lIdString name }
+  GHC.PatSynSig _ (name : _) _ -> Just Entity{ kind = PatternSignature, name = lIdString name }
+  _                            -> Nothing
 declEntity (GHC.ForD _ decl) = case decl of
   GHC.ForeignImport{ fd_name } -> Just Entity{ kind = ForeignImport, name = lIdString fd_name }
   GHC.ForeignExport{ fd_name } -> Just Entity{ kind = ForeignExport, name = lIdString fd_name }

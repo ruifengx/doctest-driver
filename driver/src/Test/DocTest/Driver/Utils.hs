@@ -15,7 +15,7 @@ module Test.DocTest.Driver.Utils
 import Data.Bifunctor (Bifunctor (first))
 import Data.Char (digitToInt, isDigit)
 import Data.Function (on)
-import Data.List (foldl', uncons)
+import Data.List (uncons)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as NonEmpty
 
