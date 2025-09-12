@@ -22,7 +22,7 @@ import GHC.Types.SrcLoc (RealSrcLoc, srcLocCol, srcLocFile, srcLocLine)
 import GHC.Utils.Ppr (Doc, Mode (PageMode), empty, ftext, nest, text, vcat, ($$), (<+>), (<>))
 import GHC.Utils.Ppr qualified as P (printDoc, renderStyle, style)
 
--- | Pretty-printing for extracted 'Module' etc.
+-- | Pretty-printing for extracted t'Module' etc.
 class Dump a where
   -- | Pretty-print to a GHC 'Doc'.
   dump :: a -> Doc

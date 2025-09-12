@@ -12,6 +12,6 @@ module Test.DocTest.Driver.Extract
 import Test.DocTest.Driver.Extract.Ast
 import Test.DocTest.Driver.Extract.GHC
 
--- | Extract a DocTest 'Module' from each 'FilePath', with specified compiler options.
+-- | Extract a DocTest t'Module' from each 'FilePath', with specified compiler options.
 extractDocTests :: [String] -> [FilePath] -> IO [Module]
 extractDocTests opts dirs = map extractModule <$> parseModulesIn opts dirs

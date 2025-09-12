@@ -118,7 +118,7 @@ lIdString = idString . unLoc
 idString :: GHC.IdP GhcPs -> FastString
 idString = occNameFS . rdrNameOcc
 
--- | Extract an 'Entity' for the declaration.
+-- | Extract an t'Entity' for the declaration.
 --
 -- This is used to determine which declaration a Haddock document should attach to.
 --
@@ -199,7 +199,7 @@ unindentLines (fmap replaceLeadingTabs -> theLines) = fmap dropSpace theLines
 stripPrefix :: String -> DocLine -> Maybe DocLine
 stripPrefix p l = DocLine (advanceLoc p l.location) <$> List.stripPrefix p l.textLine
 
--- | 'span', but also handles the @location@ of 'DocLine's.
+-- | 'span', but also handles the @location@ of t'DocLine's.
 spanDocLine :: (Char -> Bool) -> DocLine -> (String, DocLine)
 spanDocLine p l = (left, DocLine (advanceLoc left l.location) rest)
   where (left, rest) = span p l.textLine
@@ -252,7 +252,7 @@ data IOHook = IOHook
   , setupCode :: NonEmpty DocLine -- ^ The code for the action.
   } deriving stock (Show, Eq)
 
--- | Occasions to run an 'IOHook'.
+-- | Occasions to run an t'IOHook'.
 -- 'Around' and 'AroundAll' must capture the continuation as the first parameter.
 data HookFlavour
   = Before    -- ^ Once before each test case (result is freshly generated).
@@ -287,15 +287,15 @@ data Module = Module
   , testCases  :: [DocTests]  -- ^ Extracted test cases.
   } deriving stock Show
 
--- | Extract a 'Module' from a GHC 'ParsedModule'.
+-- | Extract a t'Module' from a GHC t'ParsedModule'.
 --
 -- === Implementation Note
 --
--- The documentation in a 'ParsedModule' is first extracted into a doc-tree (via 'GHC.collectDocs').
+-- The documentation in a t'ParsedModule' is first extracted into a doc-tree (via 'GHC.collectDocs').
 -- By design, doctest instructions can appear as group names (Haddock markup @\$group-name@) and as
 -- comments in verbatim code block (Haddock markup @\@...\@@). Inside this doc-tree, we inspect
 -- these places, recognise the instructions, and apply the instructions. Some instructions modify
--- their parent scope ('Capture's and 'IOHook's bring new names in scope), so we float them above.
+-- their parent scope ('Capture's and v'IOHook's bring new names in scope), so we float them above.
 extractModule :: ParsedModule -> Module
 extractModule m
   = unLoc m.pm_parsed_source
