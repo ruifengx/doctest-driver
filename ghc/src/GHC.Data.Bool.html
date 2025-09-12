@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621681485377"><span id="local-6989586621681485378"></span></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">GHC.Data.Bool</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621682317272"><span id="local-6989586621682317273"></span></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="GHC.Data.Bool.html"><span class="hs-identifier">GHC.Data.Bool</span></a></span><span>
 </span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="GHC.Data.Bool.html#OverridingBool"><span class="hs-identifier">OverridingBool</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
 </span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="GHC.Data.Bool.html#overrideWith"><span class="hs-identifier">overrideWith</span></a></span><span>
 </span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span>
@@ -11,7 +11,7 @@
 </span><span id="line-11"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Never"><span class="annot"><a href="GHC.Data.Bool.html#Never"><span class="hs-identifier hs-var">Never</span></a></span></span><span>
 </span><span id="line-12"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Always"><span class="annot"><a href="GHC.Data.Bool.html#Always"><span class="hs-identifier hs-var">Always</span></a></span></span><span>
 </span><span id="line-13"></span><span>  </span><span class="hs-keyword">deriving</span><span>
-</span><span id="line-14"></span><span>    </span><span class="hs-special">(</span><span> </span><span id="local-6989586621681485384"><span id="local-6989586621681485386"><span id="local-6989586621681485390"><span class="annot"><span class="annottext">Int -&gt; OverridingBool -&gt; ShowS
+</span><span id="line-14"></span><span>    </span><span class="hs-special">(</span><span> </span><span id="local-6989586621682317279"><span id="local-6989586621682317281"><span id="local-6989586621682317285"><span class="annot"><span class="annottext">Int -&gt; OverridingBool -&gt; ShowS
 [OverridingBool] -&gt; ShowS
 OverridingBool -&gt; String
 (Int -&gt; OverridingBool -&gt; ShowS)
@@ -26,8 +26,8 @@ $cshow :: OverridingBool -&gt; String
 show :: OverridingBool -&gt; String
 $cshowList :: [OverridingBool] -&gt; ShowS
 showList :: [OverridingBool] -&gt; ShowS
-</span><a href="../../base-4.18.2.1/src/GHC.Show.html#Show/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
-</span><span id="line-15"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681485394"><span id="local-6989586621681485398"><span id="local-6989586621681485401"><span id="local-6989586621681485407"><span class="annot"><span class="annottext">ReadPrec [OverridingBool]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682317290"><span id="local-6989586621682317294"><span id="local-6989586621682317297"><span id="local-6989586621682317303"><span class="annot"><span class="annottext">ReadPrec [OverridingBool]
 ReadPrec OverridingBool
 Int -&gt; ReadS OverridingBool
 ReadS [OverridingBool]
@@ -47,8 +47,8 @@ $creadPrec :: ReadPrec OverridingBool
 readPrec :: ReadPrec OverridingBool
 $creadListPrec :: ReadPrec [OverridingBool]
 readListPrec :: ReadPrec [OverridingBool]
-</span><a href="../../base-4.18.2.1/src/GHC.Read.html#Read/GHC.Read.html#Read"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Read</span></a></span></span></span></span></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
-</span><span id="line-16"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681485411"><span id="local-6989586621681485413"><span class="annot"><span class="annottext">OverridingBool -&gt; OverridingBool -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Read</span></span></span></span></span></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682317310"><span id="local-6989586621682317315"><span class="annot"><span class="annottext">OverridingBool -&gt; OverridingBool -&gt; Bool
 (OverridingBool -&gt; OverridingBool -&gt; Bool)
 -&gt; (OverridingBool -&gt; OverridingBool -&gt; Bool) -&gt; Eq OverridingBool
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -57,7 +57,7 @@ $c== :: OverridingBool -&gt; OverridingBool -&gt; Bool
 $c/= :: OverridingBool -&gt; OverridingBool -&gt; Bool
 /= :: OverridingBool -&gt; OverridingBool -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
-</span><span id="line-17"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681485420"><span id="local-6989586621681485422"><span id="local-6989586621681485424"><span id="local-6989586621681485428"><span id="local-6989586621681485431"><span id="local-6989586621681485434"><span id="local-6989586621681485437"><span class="annot"><span class="annottext">Eq OverridingBool
+</span><span id="line-17"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682317322"><span id="local-6989586621682317326"><span id="local-6989586621682317330"><span id="local-6989586621682317334"><span id="local-6989586621682317337"><span id="local-6989586621682317340"><span id="local-6989586621682317343"><span class="annot"><span class="annottext">Eq OverridingBool
 Eq OverridingBool =&gt;
 (OverridingBool -&gt; OverridingBool -&gt; Ordering)
 -&gt; (OverridingBool -&gt; OverridingBool -&gt; Bool)
@@ -95,7 +95,7 @@ max :: OverridingBool -&gt; OverridingBool -&gt; OverridingBool
 $cmin :: OverridingBool -&gt; OverridingBool -&gt; OverridingBool
 min :: OverridingBool -&gt; OverridingBool -&gt; OverridingBool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span>     </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
-</span><span id="line-18"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681485441"><span id="local-6989586621681485449"><span id="local-6989586621681485455"><span id="local-6989586621681485465"><span id="local-6989586621681485467"><span id="local-6989586621681485471"><span id="local-6989586621681485475"><span id="local-6989586621681485479"><span class="annot"><span class="annottext">Int -&gt; OverridingBool
+</span><span id="line-18"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682317351"><span id="local-6989586621682317360"><span id="local-6989586621682317367"><span id="local-6989586621682317377"><span id="local-6989586621682317380"><span id="local-6989586621682317385"><span id="local-6989586621682317391"><span id="local-6989586621682317395"><span class="annot"><span class="annottext">Int -&gt; OverridingBool
 OverridingBool -&gt; Int
 OverridingBool -&gt; [OverridingBool]
 OverridingBool -&gt; OverridingBool
@@ -140,23 +140,23 @@ $cenumFromThenTo :: OverridingBool
 -&gt; OverridingBool -&gt; OverridingBool -&gt; [OverridingBool]
 enumFromThenTo :: OverridingBool
 -&gt; OverridingBool -&gt; OverridingBool -&gt; [OverridingBool]
-</span><a href="../../base-4.18.2.1/src/GHC.Enum.html#Enum/GHC.Enum.html#Enum"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></a></span></span></span></span></span></span></span></span></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
-</span><span id="line-19"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681485483"><span id="local-6989586621681485485"><span class="annot"><span class="annottext">OverridingBool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></span></span></span></span></span></span></span></span></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
+</span><span id="line-19"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682317403"><span id="local-6989586621682317405"><span class="annot"><span class="annottext">OverridingBool
 OverridingBool -&gt; OverridingBool -&gt; Bounded OverridingBool
 forall a. a -&gt; a -&gt; Bounded a
 $cminBound :: OverridingBool
 minBound :: OverridingBool
 $cmaxBound :: OverridingBool
 maxBound :: OverridingBool
-</span><a href="../../base-4.18.2.1/src/GHC.Enum.html#Bounded/GHC.Enum.html#Bounded"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></a></span></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></span></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ @since 9.4.1</span></span><span>
 </span><span id="line-20"></span><span>    </span><span class="hs-special">)</span><span>
 </span><span id="line-21"></span><span>
 </span><span id="line-22"></span><span class="annot"><a href="GHC.Data.Bool.html#overrideWith"><span class="hs-identifier hs-type">overrideWith</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="GHC.Data.Bool.html#OverridingBool"><span class="hs-identifier hs-type">OverridingBool</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-23"></span><span id="overrideWith"><span class="annot"><span class="annottext">overrideWith :: Bool -&gt; OverridingBool -&gt; Bool
-</span><a href="GHC.Data.Bool.html#overrideWith"><span class="hs-identifier hs-var hs-var">overrideWith</span></a></span></span><span> </span><span id="local-6989586621681485488"><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621681485488"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="annot"><span class="annottext">OverridingBool
+</span><a href="GHC.Data.Bool.html#overrideWith"><span class="hs-identifier hs-var hs-var">overrideWith</span></a></span></span><span> </span><span id="local-6989586621682317410"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621682317410"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="annot"><span class="annottext">OverridingBool
 </span><a href="GHC.Data.Bool.html#Auto"><span class="hs-identifier hs-var">Auto</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621681485488"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><a href="#local-6989586621682317410"><span class="hs-identifier hs-var">b</span></a></span><span>
 </span><span id="line-24"></span><span class="annot"><a href="GHC.Data.Bool.html#overrideWith"><span class="hs-identifier hs-var">overrideWith</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">OverridingBool
 </span><a href="GHC.Data.Bool.html#Never"><span class="hs-identifier hs-var">Never</span></a></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool

@@ -1,15 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621681490139"><span id="local-6989586621681490140"><span id="local-6989586621681490141"><span id="local-6989586621681490142"><span id="local-6989586621681490143"><span id="local-6989586621681490144"><span id="local-6989586621681490145"><span id="local-6989586621681490146"><span id="local-6989586621681490147"><span id="local-6989586621681490148"><span id="local-6989586621681490149"><span id="local-6989586621681490150"><span id="local-6989586621681490151"><span id="local-6989586621681490152"><span id="local-6989586621681490153"><span id="local-6989586621681490154"><span id="local-6989586621681490155"></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621682328597"><span id="local-6989586621682328598"><span id="local-6989586621682328599"><span id="local-6989586621682328600"><span id="local-6989586621682328601"><span id="local-6989586621682328602"><span id="local-6989586621682328603"><span id="local-6989586621682328604"><span id="local-6989586621682328605"><span id="local-6989586621682328606"><span id="local-6989586621682328607"><span id="local-6989586621682328608"><span id="local-6989586621682328609"><span id="local-6989586621682328610"><span id="local-6989586621682328611"><span id="local-6989586621682328612"><span id="local-6989586621682328613"></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
 </span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GeneralisedNewtypeDeriving #-}</span><span>
-</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Language.Haskell.Syntax.Basic</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Language.Haskell.Syntax.Basic.html"><span class="hs-identifier">Language.Haskell.Syntax.Basic</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-4"></span><span>
-</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Data.html#/Data.Data.html"><span class="hs-identifier">Data.Data</span></a></span><span>
-</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Eq.html#/Data.Eq.html"><span class="hs-identifier">Data.Eq</span></a></span><span>
-</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Ord.html#/Data.Ord.html"><span class="hs-identifier">Data.Ord</span></a></span><span>
-</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Bool.html#/Data.Bool.html"><span class="hs-identifier">Data.Bool</span></a></span><span>
-</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Int.html#/Data.Int.html"><span class="hs-identifier">Data.Int</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Data.html"><span class="hs-identifier">Data.Data</span></a></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Eq.html"><span class="hs-identifier">Data.Eq</span></a></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Ord.html"><span class="hs-identifier">Data.Ord</span></a></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Bool.html"><span class="hs-identifier">Data.Bool</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Int.html"><span class="hs-identifier">Data.Int</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int</span></span><span class="hs-special">)</span><span>
 </span><span id="line-10"></span><span>
 </span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="GHC.Data.FastString.html"><span class="hs-identifier">GHC.Data.FastString</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="GHC.Data.FastString.html#FastString"><span class="hs-identifier">FastString</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../deepseq-1.4.8.1/src/Control.DeepSeq.html#/Control.DeepSeq.html"><span class="hs-identifier">Control.DeepSeq</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../deepseq-1.5.0.0-38e4/src/Control.DeepSeq.html"><span class="hs-identifier">Control.DeepSeq</span></a></span><span>
 </span><span id="line-13"></span><span>
 </span><span id="line-14"></span><span class="hs-comment">{-
 ************************************************************************
@@ -22,7 +22,7 @@ Boxity
 </span><span id="line-22"></span><span class="hs-keyword">data</span><span> </span><span id="Boxity"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Boxity"><span class="hs-identifier hs-var">Boxity</span></a></span></span><span>
 </span><span id="line-23"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Boxed"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Boxed"><span class="hs-identifier hs-var">Boxed</span></a></span></span><span>
 </span><span id="line-24"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Unboxed"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Unboxed"><span class="hs-identifier hs-var">Unboxed</span></a></span></span><span>
-</span><span id="line-25"></span><span>  </span><span class="hs-keyword">deriving</span><span class="hs-special">(</span><span> </span><span id="local-6989586621681490159"><span id="local-6989586621681490161"><span class="annot"><span class="annottext">Boxity -&gt; Boxity -&gt; Bool
+</span><span id="line-25"></span><span>  </span><span class="hs-keyword">deriving</span><span class="hs-special">(</span><span> </span><span id="local-6989586621682328617"><span id="local-6989586621682328622"><span class="annot"><span class="annottext">Boxity -&gt; Boxity -&gt; Bool
 (Boxity -&gt; Boxity -&gt; Bool)
 -&gt; (Boxity -&gt; Boxity -&gt; Bool) -&gt; Eq Boxity
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -30,7 +30,7 @@ $c== :: Boxity -&gt; Boxity -&gt; Bool
 == :: Boxity -&gt; Boxity -&gt; Bool
 $c/= :: Boxity -&gt; Boxity -&gt; Bool
 /= :: Boxity -&gt; Boxity -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490168"><span id="local-6989586621681490170"><span id="local-6989586621681490172"><span id="local-6989586621681490174"><span id="local-6989586621681490176"><span id="local-6989586621681490182"><span id="local-6989586621681490187"><span id="local-6989586621681490190"><span id="local-6989586621681490193"><span id="local-6989586621681490196"><span id="local-6989586621681490199"><span id="local-6989586621681490202"><span id="local-6989586621681490207"><span id="local-6989586621681490212"><span class="annot"><span class="annottext">Typeable Boxity
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328629"><span id="local-6989586621682328631"><span id="local-6989586621682328633"><span id="local-6989586621682328635"><span id="local-6989586621682328637"><span id="local-6989586621682328643"><span id="local-6989586621682328648"><span id="local-6989586621682328651"><span id="local-6989586621682328654"><span id="local-6989586621682328657"><span id="local-6989586621682328660"><span id="local-6989586621682328663"><span id="local-6989586621682328668"><span id="local-6989586621682328673"><span class="annot"><span class="annottext">Typeable Boxity
 Typeable Boxity =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -185,7 +185,7 @@ MonadPlus m =&gt;
 gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d) -&gt; Boxity -&gt; m Boxity
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-special">)</span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-special">)</span><span>
 </span><span id="line-26"></span><span>
 </span><span id="line-27"></span><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#isBoxed"><span class="hs-identifier hs-type">isBoxed</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Boxity"><span class="hs-identifier hs-type">Boxity</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-28"></span><span id="isBoxed"><span class="annot"><span class="annottext">isBoxed :: Boxity -&gt; Bool
@@ -225,7 +225,7 @@ Field Labels
 </span><span id="line-57"></span><span class="hs-comment">-- they are not necessarily unique (even within a module)</span><span>
 </span><span id="line-58"></span><span class="hs-keyword">newtype</span><span> </span><span id="FieldLabelString"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#FieldLabelString"><span class="hs-identifier hs-var">FieldLabelString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FieldLabelString"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#FieldLabelString"><span class="hs-identifier hs-var">FieldLabelString</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="field_label"><span class="annot"><span class="annottext">FieldLabelString -&gt; FastString
 </span><a href="Language.Haskell.Syntax.Basic.html#field_label"><span class="hs-identifier hs-var hs-var">field_label</span></a></span></span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="GHC.Data.FastString.html#FastString"><span class="hs-identifier hs-type">FastString</span></a></span><span> </span><span class="hs-special">}</span><span>
-</span><span id="line-59"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681490225"><span id="local-6989586621681490229"><span id="local-6989586621681490232"><span id="local-6989586621681490234"><span id="local-6989586621681490236"><span id="local-6989586621681490242"><span id="local-6989586621681490247"><span id="local-6989586621681490250"><span id="local-6989586621681490253"><span id="local-6989586621681490256"><span id="local-6989586621681490259"><span id="local-6989586621681490262"><span id="local-6989586621681490267"><span id="local-6989586621681490272"><span class="annot"><span class="annottext">Typeable FieldLabelString
+</span><span id="line-59"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682328690"><span id="local-6989586621682328694"><span id="local-6989586621682328697"><span id="local-6989586621682328699"><span id="local-6989586621682328701"><span id="local-6989586621682328707"><span id="local-6989586621682328712"><span id="local-6989586621682328715"><span id="local-6989586621682328718"><span id="local-6989586621682328721"><span id="local-6989586621682328724"><span id="local-6989586621682328727"><span id="local-6989586621682328732"><span id="local-6989586621682328737"><span class="annot"><span class="annottext">Typeable FieldLabelString
 Typeable FieldLabelString =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -410,7 +410,7 @@ gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d)
 -&gt; FieldLabelString -&gt; m FieldLabelString
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490277"><span id="local-6989586621681490282"><span class="annot"><span class="annottext">FieldLabelString -&gt; FieldLabelString -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328742"><span id="local-6989586621682328747"><span class="annot"><span class="annottext">FieldLabelString -&gt; FieldLabelString -&gt; Bool
 (FieldLabelString -&gt; FieldLabelString -&gt; Bool)
 -&gt; (FieldLabelString -&gt; FieldLabelString -&gt; Bool)
 -&gt; Eq FieldLabelString
@@ -419,12 +419,12 @@ $c== :: FieldLabelString -&gt; FieldLabelString -&gt; Bool
 == :: FieldLabelString -&gt; FieldLabelString -&gt; Bool
 $c/= :: FieldLabelString -&gt; FieldLabelString -&gt; Bool
 /= :: FieldLabelString -&gt; FieldLabelString -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490287"><span class="annot"><span class="annottext">FieldLabelString -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328753"><span class="annot"><span class="annottext">FieldLabelString -&gt; ()
 (FieldLabelString -&gt; ()) -&gt; NFData FieldLabelString
 forall a. (a -&gt; ()) -&gt; NFData a
 $crnf :: FieldLabelString -&gt; ()
 rnf :: FieldLabelString -&gt; ()
-</span><a href="../../deepseq-1.4.8.1/src/Control.DeepSeq.html#NFData/Control.DeepSeq.html#NFData"><span class="hs-identifier hs-var hs-var hs-var hs-var">NFData</span></a></span></span><span class="hs-special">)</span><span>
+</span><a href="../../deepseq-1.5.0.0-38e4/src/Control.DeepSeq.html#NFData"><span class="hs-identifier hs-var hs-var hs-var hs-var">NFData</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-60"></span><span>
 </span><span id="line-61"></span><span class="hs-comment">{-
 ************************************************************************
@@ -439,14 +439,14 @@ Field Labels
 </span><span id="line-71"></span><span class="hs-comment">-- Order of constructors matters: the Ord instance coincides with the *super*typing</span><span>
 </span><span id="line-72"></span><span class="hs-comment">-- relation on roles.</span><span>
 </span><span id="line-73"></span><span class="hs-keyword">data</span><span> </span><span id="Role"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Role"><span class="hs-identifier hs-var">Role</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Nominal"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Nominal"><span class="hs-identifier hs-var">Nominal</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Representational"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Representational"><span class="hs-identifier hs-var">Representational</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Phantom"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#Phantom"><span class="hs-identifier hs-var">Phantom</span></a></span></span><span>
-</span><span id="line-74"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681490297"><span id="local-6989586621681490299"><span class="annot"><span class="annottext">Role -&gt; Role -&gt; Bool
+</span><span id="line-74"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682328764"><span id="local-6989586621682328768"><span class="annot"><span class="annottext">Role -&gt; Role -&gt; Bool
 (Role -&gt; Role -&gt; Bool) -&gt; (Role -&gt; Role -&gt; Bool) -&gt; Eq Role
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c== :: Role -&gt; Role -&gt; Bool
 == :: Role -&gt; Role -&gt; Bool
 $c/= :: Role -&gt; Role -&gt; Bool
 /= :: Role -&gt; Role -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490305"><span id="local-6989586621681490307"><span id="local-6989586621681490309"><span id="local-6989586621681490313"><span id="local-6989586621681490316"><span id="local-6989586621681490319"><span id="local-6989586621681490322"><span class="annot"><span class="annottext">Eq Role
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328774"><span id="local-6989586621682328778"><span id="local-6989586621682328782"><span id="local-6989586621682328786"><span id="local-6989586621682328789"><span id="local-6989586621682328792"><span id="local-6989586621682328795"><span class="annot"><span class="annottext">Eq Role
 Eq Role =&gt;
 (Role -&gt; Role -&gt; Ordering)
 -&gt; (Role -&gt; Role -&gt; Bool)
@@ -483,7 +483,7 @@ $cmax :: Role -&gt; Role -&gt; Role
 max :: Role -&gt; Role -&gt; Role
 $cmin :: Role -&gt; Role -&gt; Role
 min :: Role -&gt; Role -&gt; Role
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490328"><span id="local-6989586621681490330"><span id="local-6989586621681490332"><span id="local-6989586621681490334"><span id="local-6989586621681490336"><span id="local-6989586621681490342"><span id="local-6989586621681490347"><span id="local-6989586621681490350"><span id="local-6989586621681490353"><span id="local-6989586621681490356"><span id="local-6989586621681490359"><span id="local-6989586621681490362"><span id="local-6989586621681490367"><span id="local-6989586621681490372"><span class="annot"><span class="annottext">Typeable Role
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328805"><span id="local-6989586621682328807"><span id="local-6989586621682328809"><span id="local-6989586621682328811"><span id="local-6989586621682328813"><span id="local-6989586621682328819"><span id="local-6989586621682328824"><span id="local-6989586621682328827"><span id="local-6989586621682328830"><span id="local-6989586621682328833"><span id="local-6989586621682328836"><span id="local-6989586621682328839"><span id="local-6989586621682328844"><span id="local-6989586621682328849"><span class="annot"><span class="annottext">Typeable Role
 Typeable Role =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -636,7 +636,7 @@ MonadPlus m =&gt;
 gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d) -&gt; Role -&gt; m Role
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-75"></span><span>
 </span><span id="line-76"></span><span class="hs-comment">{-
 ************************************************************************
@@ -652,7 +652,7 @@ Source Strictness and Unpackedness
 </span><span id="line-87"></span><span class="hs-keyword">data</span><span> </span><span id="SrcStrictness"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcStrictness"><span class="hs-identifier hs-var">SrcStrictness</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SrcLazy"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcLazy"><span class="hs-identifier hs-var">SrcLazy</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ Lazy, ie '~'</span></span><span>
 </span><span id="line-88"></span><span>                   </span><span class="hs-glyph">|</span><span> </span><span id="SrcStrict"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcStrict"><span class="hs-identifier hs-var">SrcStrict</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ Strict, ie '!'</span></span><span>
 </span><span id="line-89"></span><span>                   </span><span class="hs-glyph">|</span><span> </span><span id="NoSrcStrict"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#NoSrcStrict"><span class="hs-identifier hs-var">NoSrcStrict</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ no strictness annotation</span></span><span>
-</span><span id="line-90"></span><span>     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681490380"><span id="local-6989586621681490382"><span class="annot"><span class="annottext">SrcStrictness -&gt; SrcStrictness -&gt; Bool
+</span><span id="line-90"></span><span>     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682328857"><span id="local-6989586621682328861"><span class="annot"><span class="annottext">SrcStrictness -&gt; SrcStrictness -&gt; Bool
 (SrcStrictness -&gt; SrcStrictness -&gt; Bool)
 -&gt; (SrcStrictness -&gt; SrcStrictness -&gt; Bool) -&gt; Eq SrcStrictness
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -660,7 +660,7 @@ $c== :: SrcStrictness -&gt; SrcStrictness -&gt; Bool
 == :: SrcStrictness -&gt; SrcStrictness -&gt; Bool
 $c/= :: SrcStrictness -&gt; SrcStrictness -&gt; Bool
 /= :: SrcStrictness -&gt; SrcStrictness -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490388"><span id="local-6989586621681490390"><span id="local-6989586621681490392"><span id="local-6989586621681490394"><span id="local-6989586621681490396"><span id="local-6989586621681490402"><span id="local-6989586621681490407"><span id="local-6989586621681490410"><span id="local-6989586621681490413"><span id="local-6989586621681490416"><span id="local-6989586621681490419"><span id="local-6989586621681490422"><span id="local-6989586621681490427"><span id="local-6989586621681490432"><span class="annot"><span class="annottext">Typeable SrcStrictness
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328867"><span id="local-6989586621682328869"><span id="local-6989586621682328871"><span id="local-6989586621682328873"><span id="local-6989586621682328875"><span id="local-6989586621682328881"><span id="local-6989586621682328886"><span id="local-6989586621682328889"><span id="local-6989586621682328892"><span id="local-6989586621682328895"><span id="local-6989586621682328898"><span id="local-6989586621682328901"><span id="local-6989586621682328906"><span id="local-6989586621682328911"><span class="annot"><span class="annottext">Typeable SrcStrictness
 Typeable SrcStrictness =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -826,7 +826,7 @@ MonadPlus m =&gt;
 gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d) -&gt; SrcStrictness -&gt; m SrcStrictness
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-91"></span><span>
 </span><span id="line-92"></span><span class="hs-comment">-- | Source Unpackedness</span><span>
 </span><span id="line-93"></span><span class="hs-comment">--</span><span>
@@ -834,7 +834,7 @@ MonadPlus m =&gt;
 </span><span id="line-95"></span><span class="hs-keyword">data</span><span> </span><span id="SrcUnpackedness"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcUnpackedness"><span class="hs-identifier hs-var">SrcUnpackedness</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SrcUnpack"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcUnpack"><span class="hs-identifier hs-var">SrcUnpack</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ {-# UNPACK #-} specified</span></span><span>
 </span><span id="line-96"></span><span>                     </span><span class="hs-glyph">|</span><span> </span><span id="SrcNoUnpack"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#SrcNoUnpack"><span class="hs-identifier hs-var">SrcNoUnpack</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ {-# NOUNPACK #-} specified</span></span><span>
 </span><span id="line-97"></span><span>                     </span><span class="hs-glyph">|</span><span> </span><span id="NoSrcUnpack"><span class="annot"><a href="Language.Haskell.Syntax.Basic.html#NoSrcUnpack"><span class="hs-identifier hs-var">NoSrcUnpack</span></a></span></span><span> </span><span class="annot"><span class="hs-comment">-- ^ no unpack pragma</span></span><span>
-</span><span id="line-98"></span><span>     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681490440"><span id="local-6989586621681490442"><span class="annot"><span class="annottext">SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
+</span><span id="line-98"></span><span>     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682328919"><span id="local-6989586621682328923"><span class="annot"><span class="annottext">SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
 (SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool)
 -&gt; (SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool)
 -&gt; Eq SrcUnpackedness
@@ -843,7 +843,7 @@ $c== :: SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
 == :: SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
 $c/= :: SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
 /= :: SrcUnpackedness -&gt; SrcUnpackedness -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681490448"><span id="local-6989586621681490450"><span id="local-6989586621681490452"><span id="local-6989586621681490454"><span id="local-6989586621681490456"><span id="local-6989586621681490462"><span id="local-6989586621681490467"><span id="local-6989586621681490470"><span id="local-6989586621681490473"><span id="local-6989586621681490476"><span id="local-6989586621681490479"><span id="local-6989586621681490482"><span id="local-6989586621681490487"><span id="local-6989586621681490492"><span class="annot"><span class="annottext">Typeable SrcUnpackedness
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682328929"><span id="local-6989586621682328931"><span id="local-6989586621682328933"><span id="local-6989586621682328935"><span id="local-6989586621682328937"><span id="local-6989586621682328943"><span id="local-6989586621682328948"><span id="local-6989586621682328951"><span id="local-6989586621682328954"><span id="local-6989586621682328957"><span id="local-6989586621682328960"><span id="local-6989586621682328963"><span id="local-6989586621682328968"><span id="local-6989586621682328973"><span class="annot"><span class="annottext">Typeable SrcUnpackedness
 Typeable SrcUnpackedness =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -1025,5 +1025,5 @@ gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d)
 -&gt; SrcUnpackedness -&gt; m SrcUnpackedness
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-99"></span></pre></body></html>

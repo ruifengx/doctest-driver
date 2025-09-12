@@ -4,7 +4,7 @@
 </span><span id="line-4"></span><span class="hs-comment">-- Maintainer: Ruifeng Xie &lt;ruifengx@outlook.com&gt;</span><span>
 </span><span id="line-5"></span><span class="hs-comment">--</span><span>
 </span><span id="line-6"></span><span class="hs-comment">-- Fuzzy matching logic used for doctest output text segments.</span><span>
-</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Test.DocTest.FuzzyMatch</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html"><span class="hs-identifier">Test.DocTest.FuzzyMatch</span></a></span><span>
 </span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#match"><span class="hs-identifier">match</span></a></span><span>
 </span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-10"></span><span>
@@ -52,34 +52,34 @@
 </span><span id="line-52"></span><span class="hs-comment">-- False</span><span>
 </span><span id="line-53"></span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#match"><span class="hs-identifier hs-type">match</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Test.DocTest.FuzzySyntax.html#Pattern"><span class="hs-identifier hs-type">Pattern</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-54"></span><span id="match"><span class="annot"><span class="annottext">match :: Pattern -&gt; String -&gt; Bool
-</span><a href="Test.DocTest.FuzzyMatch.html#match"><span class="hs-identifier hs-var hs-var">match</span></a></span></span><span> </span><span id="local-6989586621679059670"><span class="annot"><span class="annottext">Pattern
-</span><a href="#local-6989586621679059670"><span class="hs-identifier hs-var">syn</span></a></span></span><span> </span><span id="local-6989586621679059671"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679059671"><span class="hs-identifier hs-var">s</span></a></span></span><span>
+</span><a href="Test.DocTest.FuzzyMatch.html#match"><span class="hs-identifier hs-var hs-var">match</span></a></span></span><span> </span><span id="local-6989586621679067701"><span class="annot"><span class="annottext">Pattern
+</span><a href="#local-6989586621679067701"><span class="hs-identifier hs-var">syn</span></a></span></span><span> </span><span id="local-6989586621679067702"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067702"><span class="hs-identifier hs-var">s</span></a></span></span><span>
 </span><span id="line-55"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">((), String)
 </span><span class="hs-identifier">_</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[((), String)]
-</span><a href="#local-6989586621679059672"><span class="hs-identifier hs-var">results</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679067703"><span class="hs-identifier hs-var">results</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">True</span></span><span>
 </span><span id="line-56"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span>
-</span><span id="line-57"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679059672"><span class="annot"><span class="annottext">results :: [((), String)]
-</span><a href="#local-6989586621679059672"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP () -&gt; ReadS ()
+</span><span id="line-57"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679067703"><span class="annot"><span class="annottext">results :: [((), String)]
+</span><a href="#local-6989586621679067703"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP () -&gt; ReadS ()
 forall a. ReadP a -&gt; ReadS a
 </span><span class="hs-identifier hs-var">readP_to_S</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Pattern -&gt; ReadP ()
 </span><a href="Test.DocTest.FuzzyMatch.html#matcher"><span class="hs-identifier hs-var">matcher</span></a></span><span> </span><span class="annot"><span class="annottext">Pattern
-</span><a href="#local-6989586621679059670"><span class="hs-identifier hs-var">syn</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679059671"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><a href="#local-6989586621679067701"><span class="hs-identifier hs-var">syn</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067702"><span class="hs-identifier hs-var">s</span></a></span><span>
 </span><span id="line-58"></span><span>
 </span><span id="line-59"></span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#matcher"><span class="hs-identifier hs-type">matcher</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Test.DocTest.FuzzySyntax.html#Pattern"><span class="hs-identifier hs-type">Pattern</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-60"></span><span id="matcher"><span class="annot"><span class="annottext">matcher :: Pattern -&gt; ReadP ()
-</span><a href="Test.DocTest.FuzzyMatch.html#matcher"><span class="hs-identifier hs-var hs-var">matcher</span></a></span></span><span> </span><span id="local-6989586621679059674"><span class="annot"><span class="annottext">Pattern
-</span><a href="#local-6989586621679059674"><span class="hs-identifier hs-var">syn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Segment -&gt; ReadP ()) -&gt; Pattern -&gt; ReadP ()
+</span><a href="Test.DocTest.FuzzyMatch.html#matcher"><span class="hs-identifier hs-var hs-var">matcher</span></a></span></span><span> </span><span id="local-6989586621679067705"><span class="annot"><span class="annottext">Pattern
+</span><a href="#local-6989586621679067705"><span class="hs-identifier hs-var">syn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Segment -&gt; ReadP ()) -&gt; Pattern -&gt; ReadP ()
 forall (t :: Type -&gt; Type) (f :: Type -&gt; Type) a b.
 (Foldable t, Applicative f) =&gt;
 (a -&gt; f b) -&gt; t a -&gt; f ()
 </span><span class="hs-identifier hs-var">traverse_</span></span><span> </span><span class="annot"><span class="annottext">Segment -&gt; ReadP ()
 </span><a href="Test.DocTest.FuzzyMatch.html#syntax"><span class="hs-identifier hs-var">syntax</span></a></span><span> </span><span class="annot"><span class="annottext">Pattern
-</span><a href="#local-6989586621679059674"><span class="hs-identifier hs-var">syn</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP () -&gt; ReadP () -&gt; ReadP ()
+</span><a href="#local-6989586621679067705"><span class="hs-identifier hs-var">syn</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP () -&gt; ReadP () -&gt; ReadP ()
 forall a b. ReadP a -&gt; ReadP b -&gt; ReadP a
 forall (f :: Type -&gt; Type) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
 </span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">ReadP Char -&gt; ReadP ()
@@ -102,7 +102,9 @@ forall (f :: Type -&gt; Type) a. Applicative f =&gt; a -&gt; f a
 </span><span id="line-64"></span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#syntax"><span class="hs-identifier hs-var">syntax</span></a></span><span> </span><span class="annot"><span class="annottext">Segment
 </span><a href="Test.DocTest.FuzzySyntax.html#MultilineDots"><span class="hs-identifier hs-var">MultilineDots</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Bool) -&gt; ReadP String
 </span><span class="hs-identifier hs-var">P.munch</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
-</span><span class="hs-char">'\n'</span></span><span> </span><span class="hs-operator">/=</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ReadP String -&gt; ReadP Char -&gt; ReadP ()
+</span><span class="hs-char">'\n'</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Char -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ReadP String -&gt; ReadP Char -&gt; ReadP ()
 forall a sep. ReadP a -&gt; ReadP sep -&gt; ReadP ()
 </span><a href="Test.DocTest.FuzzyMatch.html#skipSepBy1"><span class="hs-operator hs-var">`skipSepBy1`</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; ReadP Char
 </span><span class="hs-identifier hs-var">P.char</span></span><span> </span><span class="annot"><span class="annottext">Char
@@ -112,28 +114,30 @@ forall a sep. ReadP a -&gt; ReadP sep -&gt; ReadP ()
 forall a. ReadP a -&gt; ReadP ()
 </span><span class="hs-identifier hs-var">P.skipMany1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Char -&gt; Bool) -&gt; ReadP Char
 </span><span class="hs-identifier hs-var">P.satisfy</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char
-</span><span class="hs-char">'\n'</span></span><span> </span><span class="hs-operator">/=</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-66"></span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#syntax"><span class="hs-identifier hs-var">syntax</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.FuzzySyntax.html#Plain"><span class="hs-identifier hs-type">Plain</span></a></span><span> </span><span id="local-6989586621679059688"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679059688"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP String -&gt; ReadP ()
+</span><span class="hs-char">'\n'</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Char -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#syntax"><span class="hs-identifier hs-var">syntax</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.FuzzySyntax.html#Plain"><span class="hs-identifier hs-type">Plain</span></a></span><span> </span><span id="local-6989586621679067720"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067720"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP String -&gt; ReadP ()
 forall (f :: Type -&gt; Type) a. Functor f =&gt; f a -&gt; f ()
 </span><span class="hs-identifier hs-var">void</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; ReadP String
 </span><span class="hs-identifier hs-var">P.string</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679059688"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679067720"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-67"></span><span>
-</span><span id="line-68"></span><span id="local-6989586621679059646"><span id="local-6989586621679059647"><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#skipSepBy1"><span class="hs-identifier hs-type">skipSepBy1</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="annot"><a href="#local-6989586621679059646"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="annot"><a href="#local-6989586621679059647"><span class="hs-identifier hs-type">sep</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-68"></span><span id="local-6989586621679067677"><span id="local-6989586621679067678"><span class="annot"><a href="Test.DocTest.FuzzyMatch.html#skipSepBy1"><span class="hs-identifier hs-type">skipSepBy1</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="annot"><a href="#local-6989586621679067677"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="annot"><a href="#local-6989586621679067678"><span class="hs-identifier hs-type">sep</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ReadP</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
 </span><span id="line-69"></span><span id="skipSepBy1"><span class="annot"><span class="annottext">skipSepBy1 :: forall a sep. ReadP a -&gt; ReadP sep -&gt; ReadP ()
-</span><a href="Test.DocTest.FuzzyMatch.html#skipSepBy1"><span class="hs-identifier hs-var hs-var">skipSepBy1</span></a></span></span><span> </span><span id="local-6989586621679059692"><span class="annot"><span class="annottext">ReadP a
-</span><a href="#local-6989586621679059692"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679059693"><span class="annot"><span class="annottext">ReadP sep
-</span><a href="#local-6989586621679059693"><span class="hs-identifier hs-var">sep</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP a
-</span><a href="#local-6989586621679059692"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP a -&gt; ReadP () -&gt; ReadP ()
+</span><a href="Test.DocTest.FuzzyMatch.html#skipSepBy1"><span class="hs-identifier hs-var hs-var">skipSepBy1</span></a></span></span><span> </span><span id="local-6989586621679067724"><span class="annot"><span class="annottext">ReadP a
+</span><a href="#local-6989586621679067724"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679067725"><span class="annot"><span class="annottext">ReadP sep
+</span><a href="#local-6989586621679067725"><span class="hs-identifier hs-var">sep</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadP a
+</span><a href="#local-6989586621679067724"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP a -&gt; ReadP () -&gt; ReadP ()
 forall a b. ReadP a -&gt; ReadP b -&gt; ReadP b
 forall (f :: Type -&gt; Type) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
 </span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ReadP a -&gt; ReadP ()
 forall a. ReadP a -&gt; ReadP ()
 </span><span class="hs-identifier hs-var">P.skipMany</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ReadP sep
-</span><a href="#local-6989586621679059693"><span class="hs-identifier hs-var">sep</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP sep -&gt; ReadP a -&gt; ReadP a
+</span><a href="#local-6989586621679067725"><span class="hs-identifier hs-var">sep</span></a></span><span> </span><span class="annot"><span class="annottext">ReadP sep -&gt; ReadP a -&gt; ReadP a
 forall a b. ReadP a -&gt; ReadP b -&gt; ReadP b
 forall (f :: Type -&gt; Type) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
 </span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ReadP a
-</span><a href="#local-6989586621679059692"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679067724"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-70"></span></pre></body></html>

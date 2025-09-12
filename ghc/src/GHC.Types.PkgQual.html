@@ -1,20 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621681520546"><span id="local-6989586621681520547"><span id="local-6989586621681520548"><span id="local-6989586621681520549"><span id="local-6989586621681520550"><span id="local-6989586621681520551"><span id="local-6989586621681520552"></span></span></span></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621682360169"><span id="local-6989586621682360170"><span id="local-6989586621682360171"><span id="local-6989586621682360172"><span id="local-6989586621682360173"><span id="local-6989586621682360174"><span id="local-6989586621682360175"></span></span></span></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
 </span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
 </span><span id="line-3"></span><span>
-</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">GHC.Types.PkgQual</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="GHC.Types.PkgQual.html"><span class="hs-identifier">GHC.Types.PkgQual</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-5"></span><span>
 </span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="GHC.Prelude.html"><span class="hs-identifier">GHC.Prelude</span></a></span><span>
 </span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="GHC.Types.SourceText.html"><span class="hs-identifier">GHC.Types.SourceText</span></a></span><span>
 </span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="GHC.Unit.Types.html"><span class="hs-identifier">GHC.Unit.Types</span></a></span><span>
 </span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="GHC.Utils.Outputable.html"><span class="hs-identifier">GHC.Utils.Outputable</span></a></span><span>
 </span><span id="line-10"></span><span>
-</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.18.2.1/src/Data.Data.html#/Data.Data.html"><span class="hs-identifier">Data.Data</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.20.1.0-276c/src/Data.Data.html"><span class="hs-identifier">Data.Data</span></a></span><span>
 </span><span id="line-12"></span><span>
 </span><span id="line-13"></span><span class="annot"><span class="hs-comment">-- | Package-qualifier as it was parsed</span></span><span>
 </span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="RawPkgQual"><span class="annot"><a href="GHC.Types.PkgQual.html#RawPkgQual"><span class="hs-identifier hs-var">RawPkgQual</span></a></span></span><span>
 </span><span id="line-15"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="NoRawPkgQual"><span class="annot"><a href="GHC.Types.PkgQual.html#NoRawPkgQual"><span class="hs-identifier hs-var">NoRawPkgQual</span></a></span></span><span>             </span><span class="annot"><span class="hs-comment">-- ^ No package qualifier</span></span><span>
 </span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="RawPkgQual"><span class="annot"><a href="GHC.Types.PkgQual.html#RawPkgQual"><span class="hs-identifier hs-var">RawPkgQual</span></a></span></span><span> </span><span class="annot"><a href="GHC.Types.SourceText.html#StringLiteral"><span class="hs-identifier hs-type">StringLiteral</span></a></span><span> </span><span class="annot"><span class="hs-comment">-- ^ Raw package qualifier string.</span></span><span>
-</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681520558"><span id="local-6989586621681520562"><span id="local-6989586621681520565"><span id="local-6989586621681520567"><span id="local-6989586621681520569"><span id="local-6989586621681520575"><span id="local-6989586621681520580"><span id="local-6989586621681520583"><span id="local-6989586621681520586"><span id="local-6989586621681520589"><span id="local-6989586621681520592"><span id="local-6989586621681520595"><span id="local-6989586621681520600"><span id="local-6989586621681520605"><span class="annot"><span class="annottext">Typeable RawPkgQual
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682360181"><span id="local-6989586621682360185"><span id="local-6989586621682360188"><span id="local-6989586621682360190"><span id="local-6989586621682360192"><span id="local-6989586621682360198"><span id="local-6989586621682360203"><span id="local-6989586621682360206"><span id="local-6989586621682360209"><span id="local-6989586621682360212"><span id="local-6989586621682360215"><span id="local-6989586621682360218"><span id="local-6989586621682360223"><span id="local-6989586621682360228"><span class="annot"><span class="annottext">Typeable RawPkgQual
 Typeable RawPkgQual =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -177,7 +177,7 @@ MonadPlus m =&gt;
 gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d) -&gt; RawPkgQual -&gt; m RawPkgQual
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-18"></span><span>
 </span><span id="line-19"></span><span class="hs-comment">-- | Package-qualifier after renaming</span><span>
 </span><span id="line-20"></span><span class="hs-comment">--</span><span>
@@ -187,7 +187,7 @@ MonadPlus m =&gt;
 </span><span id="line-24"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="NoPkgQual"><span class="annot"><a href="GHC.Types.PkgQual.html#NoPkgQual"><span class="hs-identifier hs-var">NoPkgQual</span></a></span></span><span>       </span><span class="annot"><span class="hs-comment">-- ^ No package qualifier</span></span><span>
 </span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ThisPkg"><span class="annot"><a href="GHC.Types.PkgQual.html#ThisPkg"><span class="hs-identifier hs-var">ThisPkg</span></a></span></span><span>  </span><span class="annot"><a href="GHC.Unit.Types.html#UnitId"><span class="hs-identifier hs-type">UnitId</span></a></span><span> </span><span class="annot"><span class="hs-comment">-- ^ Import from home-unit</span></span><span>
 </span><span id="line-26"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="OtherPkg"><span class="annot"><a href="GHC.Types.PkgQual.html#OtherPkg"><span class="hs-identifier hs-var">OtherPkg</span></a></span></span><span> </span><span class="annot"><a href="GHC.Unit.Types.html#UnitId"><span class="hs-identifier hs-type">UnitId</span></a></span><span> </span><span class="annot"><span class="hs-comment">-- ^ Import from another unit</span></span><span>
-</span><span id="line-27"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681520616"><span id="local-6989586621681520621"><span id="local-6989586621681520625"><span id="local-6989586621681520627"><span id="local-6989586621681520629"><span id="local-6989586621681520635"><span id="local-6989586621681520640"><span id="local-6989586621681520643"><span id="local-6989586621681520646"><span id="local-6989586621681520649"><span id="local-6989586621681520652"><span id="local-6989586621681520655"><span id="local-6989586621681520660"><span id="local-6989586621681520665"><span class="annot"><span class="annottext">Typeable PkgQual
+</span><span id="line-27"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682360243"><span id="local-6989586621682360248"><span id="local-6989586621682360252"><span id="local-6989586621682360254"><span id="local-6989586621682360256"><span id="local-6989586621682360262"><span id="local-6989586621682360267"><span id="local-6989586621682360270"><span id="local-6989586621682360273"><span id="local-6989586621682360276"><span id="local-6989586621682360279"><span id="local-6989586621682360282"><span id="local-6989586621682360287"><span id="local-6989586621682360292"><span class="annot"><span class="annottext">Typeable PkgQual
 Typeable PkgQual =&gt;
 (forall (c :: * -&gt; *).
  (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
@@ -348,7 +348,7 @@ MonadPlus m =&gt;
 gmapMo :: forall (m :: * -&gt; *).
 MonadPlus m =&gt;
 (forall d. Data d =&gt; d -&gt; m d) -&gt; PkgQual -&gt; m PkgQual
-</span><a href="../../base-4.18.2.1/src/Data.Data.html#Data/Data.Data.html#Data"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681520673"><span id="local-6989586621681520678"><span id="local-6989586621681520682"><span id="local-6989586621681520686"><span id="local-6989586621681520689"><span id="local-6989586621681520692"><span id="local-6989586621681520695"><span class="annot"><span class="annottext">Eq PkgQual
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682360300"><span id="local-6989586621682360305"><span id="local-6989586621682360309"><span id="local-6989586621682360313"><span id="local-6989586621682360316"><span id="local-6989586621682360319"><span id="local-6989586621682360322"><span class="annot"><span class="annottext">Eq PkgQual
 Eq PkgQual =&gt;
 (PkgQual -&gt; PkgQual -&gt; Ordering)
 -&gt; (PkgQual -&gt; PkgQual -&gt; Bool)
@@ -385,7 +385,7 @@ $cmax :: PkgQual -&gt; PkgQual -&gt; PkgQual
 max :: PkgQual -&gt; PkgQual -&gt; PkgQual
 $cmin :: PkgQual -&gt; PkgQual -&gt; PkgQual
 min :: PkgQual -&gt; PkgQual -&gt; PkgQual
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681520699"><span id="local-6989586621681520704"><span class="annot"><span class="annottext">PkgQual -&gt; PkgQual -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682360330"><span id="local-6989586621682360338"><span class="annot"><span class="annottext">PkgQual -&gt; PkgQual -&gt; Bool
 (PkgQual -&gt; PkgQual -&gt; Bool)
 -&gt; (PkgQual -&gt; PkgQual -&gt; Bool) -&gt; Eq PkgQual
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -396,46 +396,46 @@ $c/= :: PkgQual -&gt; PkgQual -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-28"></span><span>
 </span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="GHC.Utils.Outputable.html#Outputable"><span class="hs-identifier hs-type">Outputable</span></a></span><span> </span><span class="annot"><a href="GHC.Types.PkgQual.html#RawPkgQual"><span class="hs-identifier hs-type">RawPkgQual</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-30"></span><span>  </span><span id="local-6989586621681520715"><span class="annot"><span class="annottext">ppr :: RawPkgQual -&gt; SDoc
-</span><a href="#local-6989586621681520715"><span class="hs-identifier hs-var hs-var hs-var hs-var">ppr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621682360349"><span class="annot"><span class="annottext">ppr :: RawPkgQual -&gt; SDoc
+</span><a href="#local-6989586621682360349"><span class="hs-identifier hs-var hs-var hs-var">ppr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
 </span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">RawPkgQual
 </span><a href="GHC.Types.PkgQual.html#NoRawPkgQual"><span class="hs-identifier hs-var">NoRawPkgQual</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc
 forall doc. IsOutput doc =&gt; doc
 </span><a href="GHC.Utils.Outputable.html#empty"><span class="hs-identifier hs-var">empty</span></a></span><span>
-</span><span id="line-32"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#RawPkgQual"><span class="hs-identifier hs-type">RawPkgQual</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="GHC.Types.SourceText.html#StringLiteral"><span class="hs-identifier hs-type">StringLiteral</span></a></span><span> </span><span id="local-6989586621681520719"><span class="annot"><span class="annottext">SourceText
-</span><a href="#local-6989586621681520719"><span class="hs-identifier hs-var">st</span></a></span></span><span> </span><span id="local-6989586621681520720"><span class="annot"><span class="annottext">FastString
-</span><a href="#local-6989586621681520720"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe RealSrcSpan
+</span><span id="line-32"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#RawPkgQual"><span class="hs-identifier hs-type">RawPkgQual</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="GHC.Types.SourceText.html#StringLiteral"><span class="hs-identifier hs-type">StringLiteral</span></a></span><span> </span><span id="local-6989586621682360353"><span class="annot"><span class="annottext">SourceText
+</span><a href="#local-6989586621682360353"><span class="hs-identifier hs-var">st</span></a></span></span><span> </span><span id="local-6989586621682360354"><span class="annot"><span class="annottext">FastString
+</span><a href="#local-6989586621682360354"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe NoCommentsLocation
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span>
 </span><span id="line-33"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SourceText -&gt; SDoc -&gt; SDoc
 </span><a href="GHC.Types.SourceText.html#pprWithSourceText"><span class="hs-identifier hs-var">pprWithSourceText</span></a></span><span> </span><span class="annot"><span class="annottext">SourceText
-</span><a href="#local-6989586621681520719"><span class="hs-identifier hs-var">st</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
+</span><a href="#local-6989586621682360353"><span class="hs-identifier hs-var">st</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
 forall doc. IsLine doc =&gt; doc -&gt; doc
 </span><a href="GHC.Utils.Outputable.html#doubleQuotes"><span class="hs-identifier hs-var">doubleQuotes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FastString -&gt; SDoc
 forall doc. IsLine doc =&gt; FastString -&gt; doc
 </span><a href="GHC.Utils.Outputable.html#ftext"><span class="hs-identifier hs-var">ftext</span></a></span><span> </span><span class="annot"><span class="annottext">FastString
-</span><a href="#local-6989586621681520720"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621682360354"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-34"></span><span>
 </span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="GHC.Utils.Outputable.html#Outputable"><span class="hs-identifier hs-type">Outputable</span></a></span><span> </span><span class="annot"><a href="GHC.Types.PkgQual.html#PkgQual"><span class="hs-identifier hs-type">PkgQual</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-36"></span><span>  </span><span id="local-6989586621681520732"><span class="annot"><span class="annottext">ppr :: PkgQual -&gt; SDoc
-</span><a href="GHC.Utils.Outputable.html#ppr"><span class="hs-identifier hs-var hs-var hs-var hs-var">ppr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621682360366"><span class="annot"><span class="annottext">ppr :: PkgQual -&gt; SDoc
+</span><a href="GHC.Utils.Outputable.html#ppr"><span class="hs-identifier hs-var hs-var hs-var">ppr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
 </span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">PkgQual
 </span><a href="GHC.Types.PkgQual.html#NoPkgQual"><span class="hs-identifier hs-var">NoPkgQual</span></a></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc
 forall doc. IsOutput doc =&gt; doc
 </span><a href="GHC.Utils.Outputable.html#empty"><span class="hs-identifier hs-var">empty</span></a></span><span>
-</span><span id="line-38"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#ThisPkg"><span class="hs-identifier hs-type">ThisPkg</span></a></span><span> </span><span id="local-6989586621681520733"><span class="annot"><span class="annottext">UnitId
-</span><a href="#local-6989586621681520733"><span class="hs-identifier hs-var">u</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#ThisPkg"><span class="hs-identifier hs-type">ThisPkg</span></a></span><span> </span><span id="local-6989586621682360367"><span class="annot"><span class="annottext">UnitId
+</span><a href="#local-6989586621682360367"><span class="hs-identifier hs-var">u</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
 forall doc. IsLine doc =&gt; doc -&gt; doc
 </span><a href="GHC.Utils.Outputable.html#doubleQuotes"><span class="hs-identifier hs-var">doubleQuotes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnitId -&gt; SDoc
 forall a. Outputable a =&gt; a -&gt; SDoc
 </span><a href="GHC.Utils.Outputable.html#ppr"><span class="hs-identifier hs-var">ppr</span></a></span><span> </span><span class="annot"><span class="annottext">UnitId
-</span><a href="#local-6989586621681520733"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-39"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#OtherPkg"><span class="hs-identifier hs-type">OtherPkg</span></a></span><span> </span><span id="local-6989586621681520734"><span class="annot"><span class="annottext">UnitId
-</span><a href="#local-6989586621681520734"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
+</span><a href="#local-6989586621682360367"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="GHC.Types.PkgQual.html#OtherPkg"><span class="hs-identifier hs-type">OtherPkg</span></a></span><span> </span><span id="local-6989586621682360368"><span class="annot"><span class="annottext">UnitId
+</span><a href="#local-6989586621682360368"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDoc -&gt; SDoc
 forall doc. IsLine doc =&gt; doc -&gt; doc
 </span><a href="GHC.Utils.Outputable.html#doubleQuotes"><span class="hs-identifier hs-var">doubleQuotes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnitId -&gt; SDoc
 forall a. Outputable a =&gt; a -&gt; SDoc
 </span><a href="GHC.Utils.Outputable.html#ppr"><span class="hs-identifier hs-var">ppr</span></a></span><span> </span><span class="annot"><span class="annottext">UnitId
-</span><a href="#local-6989586621681520734"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621682360368"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-40"></span><span>
 </span><span id="line-41"></span><span>
 </span><span id="line-42"></span></pre></body></html>

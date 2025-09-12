@@ -4,7 +4,7 @@
 </span><span id="line-4"></span><span class="hs-comment">-- Maintainer: Ruifeng Xie &lt;ruifengx@outlook.com&gt;</span><span>
 </span><span id="line-5"></span><span class="hs-comment">--</span><span>
 </span><span id="line-6"></span><span class="hs-comment">-- Pretty-printing for extracted information, intended for debugging purposes.</span><span>
-</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Test.DocTest.Driver.Extract.Dump</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html"><span class="hs-identifier">Test.DocTest.Driver.Extract.Dump</span></a></span><span>
 </span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier">Dump</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
 </span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#stringDoc"><span class="hs-identifier">stringDoc</span></a></span><span>
 </span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#printDoc"><span class="hs-identifier">printDoc</span></a></span><span>
@@ -23,17 +23,17 @@
 </span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Utils.Ppr</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">P</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">printDoc</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">renderStyle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">style</span></span><span class="hs-special">)</span><span>
 </span><span id="line-24"></span><span>
 </span><span id="line-25"></span><span class="annot"><span class="hs-comment">-- | Pretty-printing for extracted 'Module' etc.</span></span><span>
-</span><span id="line-26"></span><span class="hs-keyword">class</span><span> </span><span id="Dump"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-var">Dump</span></a></span></span><span> </span><span id="local-6989586621679161922"><span class="annot"><a href="#local-6989586621679161922"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">class</span><span> </span><span id="Dump"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-var">Dump</span></a></span></span><span> </span><span id="local-6989586621679244803"><span class="annot"><a href="#local-6989586621679244803"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-comment">-- | Pretty-print to a GHC 'Doc'.</span><span>
-</span><span id="line-28"></span><span>  </span><span id="dump"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-type">dump</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679161922"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span>
+</span><span id="line-28"></span><span>  </span><span id="dump"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-type">dump</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679244803"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span>
 </span><span id="line-29"></span><span>  </span><span class="hs-comment">-- | Pretty-print a list to a GHC 'Doc'.</span><span>
-</span><span id="line-30"></span><span>  </span><span id="dumpList"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-type">dumpList</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679161922"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span>
-</span><span id="line-31"></span><span>  </span><span id="local-6989586621679161987"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var hs-var">dumpList</span></a></span><span> </span><span id="local-6989586621679161989"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679161989"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Doc] -&gt; Doc
+</span><span id="line-30"></span><span>  </span><span id="dumpList"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-type">dumpList</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679244803"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679244868"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var hs-var">dumpList</span></a></span><span> </span><span id="local-6989586621679244870"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679244870"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Doc] -&gt; Doc
 </span><span class="hs-identifier hs-var">vcat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; Doc) -&gt; [a] -&gt; [Doc]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
-</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679161990"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679161990"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679244871"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679244871"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;- &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Doc -&gt; Doc
@@ -41,8 +41,8 @@ forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-number">2</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679161990"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679161989"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span></span><span>
+</span><a href="#local-6989586621679244871"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679244870"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span></span><span>
 </span><span id="line-32"></span><span>
 </span><span id="line-33"></span><span class="annot"><span class="hs-comment">-- | Convenience function for print the GHC 'Doc' to a given 'Handle'.</span></span><span>
 </span><span id="line-34"></span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#hPrintDoc"><span class="hs-identifier hs-type">hPrintDoc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
@@ -67,40 +67,40 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-identifier hs-var">P.renderStyle</span></span><span> </span><span class="annot"><span class="annottext">Style
 </span><span class="hs-identifier hs-var">P.style</span></span><span>
 </span><span id="line-44"></span><span>
-</span><span id="line-45"></span><span id="local-6989586621679161930"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-type">dumpTitleList</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679161930"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679161930"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span></span><span>
+</span><span id="line-45"></span><span id="local-6989586621679244811"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-type">dumpTitleList</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679244811"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679244811"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span></span><span>
 </span><span id="line-46"></span><span id="dumpTitleList"><span class="annot"><span class="annottext">dumpTitleList :: forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-var hs-var">dumpTitleList</span></a></span></span><span> </span><span id="local-6989586621679161999"><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679161999"><span class="hs-identifier hs-var">skipEmpty</span></a></span></span><span> </span><span id="local-6989586621679162000"><span class="annot"><span class="annottext">Doc
-</span><a href="#local-6989586621679162000"><span class="hs-identifier hs-var">title</span></a></span></span><span> </span><span id="local-6989586621679162001"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679162001"><span class="hs-identifier hs-var">xs</span></a></span></span><span>
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-var hs-var">dumpTitleList</span></a></span></span><span> </span><span id="local-6989586621679244880"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679244880"><span class="hs-identifier hs-var">skipEmpty</span></a></span></span><span> </span><span id="local-6989586621679244881"><span class="annot"><span class="annottext">Doc
+</span><a href="#local-6989586621679244881"><span class="hs-identifier hs-var">title</span></a></span></span><span> </span><span id="local-6989586621679244882"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679244882"><span class="hs-identifier hs-var">xs</span></a></span></span><span>
 </span><span id="line-47"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Bool
 forall a. [a] -&gt; Bool
 forall (t :: Type -&gt; Type) a. Foldable t =&gt; t a -&gt; Bool
 </span><span class="hs-identifier hs-var">null</span></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679162001"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679161999"><span class="hs-identifier hs-var">skipEmpty</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc
+</span><a href="#local-6989586621679244882"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679244880"><span class="hs-identifier hs-var">skipEmpty</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc
 </span><span class="hs-identifier hs-var">empty</span></span><span>
 </span><span id="line-48"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Bool
 forall a. [a] -&gt; Bool
 forall (t :: Type -&gt; Type) a. Foldable t =&gt; t a -&gt; Bool
 </span><span class="hs-identifier hs-var">null</span></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679162001"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc
-</span><a href="#local-6989586621679162000"><span class="hs-identifier hs-var">title</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679244882"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc
+</span><a href="#local-6989586621679244881"><span class="hs-identifier hs-var">title</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;[]&quot;</span></span><span>
 </span><span id="line-49"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc
-</span><a href="#local-6989586621679162000"><span class="hs-identifier hs-var">title</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679244881"><span class="hs-identifier hs-var">title</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679162001"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><a href="#local-6989586621679244882"><span class="hs-identifier hs-var">xs</span></a></span><span>
 </span><span id="line-50"></span><span>
-</span><span id="line-51"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162005"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Module"><span class="hs-identifier hs-type">Module</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-52"></span><span>  </span><span id="local-6989586621679162023"><span class="annot"><span class="annottext">dump :: Module -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162024"><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Doc] -&gt; Doc
+</span><span id="line-51"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244886"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Module"><span class="hs-identifier hs-type">Module</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679244904"><span class="annot"><span class="annottext">dump :: Module -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679244905"><span class="annot"><span class="annottext">Module
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Doc] -&gt; Doc
 </span><span class="hs-identifier hs-var">vcat</span></span><span>
 </span><span id="line-53"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -108,40 +108,40 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">filePath</span><span>
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">filePath</span><span>
 </span><span id="line-54"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;modulePath:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">modulePath</span><span>
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">modulePath</span><span>
 </span><span id="line-55"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Doc -&gt; [DocLine] -&gt; Doc
 forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-var">dumpTitleList</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;importList:&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">importList</span><span>
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">importList</span><span>
 </span><span id="line-56"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Doc -&gt; [DocLine] -&gt; Doc
 forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-var">dumpTitleList</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;topSetup:&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">topSetup</span><span>
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">topSetup</span><span>
 </span><span id="line-57"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Doc -&gt; [DocTests] -&gt; Doc
 forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpTitleList"><span class="hs-identifier hs-var">dumpTitleList</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;testCases:&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Module
-</span><a href="#local-6989586621679162024"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">testCases</span><span>
+</span><a href="#local-6989586621679244905"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">testCases</span><span>
 </span><span id="line-58"></span><span>    </span><span class="hs-special">]</span><span>
 </span><span id="line-59"></span><span>
-</span><span id="line-60"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162027"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-61"></span><span>  </span><span id="local-6989586621679162032"><span class="annot"><span class="annottext">dump :: Int -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-60"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244908"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-61"></span><span>  </span><span id="local-6989586621679244913"><span class="annot"><span class="annottext">dump :: Int -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; (Int -&gt; String) -&gt; Int -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
@@ -149,24 +149,24 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span>
 </span><span id="line-62"></span><span>
 </span><span id="line-63"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-64"></span><span>  </span><span id="local-6989586621679162039"><span class="annot"><span class="annottext">dump :: Char -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679244920"><span class="annot"><span class="annottext">dump :: Char -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; (Char -&gt; String) -&gt; Char -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span>
-</span><span id="line-65"></span><span>  </span><span id="local-6989586621679162043"><span class="annot"><span class="annottext">dumpList :: String -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var hs-var hs-var hs-var">dumpList</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-65"></span><span>  </span><span id="local-6989586621679244924"><span class="annot"><span class="annottext">dumpList :: String -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var hs-var hs-var">dumpList</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; (String -&gt; String) -&gt; String -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span>
 </span><span id="line-66"></span><span>
-</span><span id="line-67"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679161944"><span id="local-6989586621679162047"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679161944"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679161944"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-68"></span><span>  </span><span id="local-6989586621679162051"><span class="annot"><span class="annottext">dump :: Maybe a -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc -&gt; (a -&gt; Doc) -&gt; Maybe a -&gt; Doc
+</span><span id="line-67"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244825"><span id="local-6989586621679244928"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679244825"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679244825"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-68"></span><span>  </span><span id="local-6989586621679244932"><span class="annot"><span class="annottext">dump :: Maybe a -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc -&gt; (a -&gt; Doc) -&gt; Maybe a -&gt; Doc
 forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
 </span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -174,15 +174,15 @@ forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span>
 </span><span id="line-69"></span><span>
-</span><span id="line-70"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679161932"><span id="local-6989586621679162056"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679161932"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679161932"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-71"></span><span>  </span><span id="local-6989586621679162059"><span class="annot"><span class="annottext">dump :: [a] -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Doc
+</span><span id="line-70"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244813"><span id="local-6989586621679244937"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679244813"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679244813"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-71"></span><span>  </span><span id="local-6989586621679244940"><span class="annot"><span class="annottext">dump :: [a] -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Doc
 forall a. Dump a =&gt; [a] -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var">dumpList</span></a></span><span>
 </span><span id="line-72"></span><span>
-</span><span id="line-73"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679161949"><span id="local-6989586621679162063"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679161949"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NonEmpty</span></span><span> </span><span class="annot"><a href="#local-6989586621679161949"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-74"></span><span>  </span><span id="local-6989586621679162067"><span class="annot"><span class="annottext">dump :: NonEmpty a -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Doc
+</span><span id="line-73"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244830"><span id="local-6989586621679244944"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679244830"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NonEmpty</span></span><span> </span><span class="annot"><a href="#local-6989586621679244830"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-74"></span><span>  </span><span id="local-6989586621679244948"><span class="annot"><span class="annottext">dump :: NonEmpty a -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Doc
 forall a. Dump a =&gt; [a] -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dumpList"><span class="hs-identifier hs-var">dumpList</span></a></span><span> </span><span class="annot"><span class="annottext">([a] -&gt; Doc) -&gt; (NonEmpty a -&gt; [a]) -&gt; NonEmpty a -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -190,37 +190,37 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall a. NonEmpty a -&gt; [a]
 </span><span class="hs-identifier hs-var">toList</span></span><span>
 </span><span id="line-75"></span><span>
-</span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162070"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#DocLine"><span class="hs-identifier hs-type">DocLine</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-77"></span><span>  </span><span id="local-6989586621679162078"><span class="annot"><span class="annottext">dump :: DocLine -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162079"><span class="annot"><span class="annottext">DocLine
-</span><a href="#local-6989586621679162079"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Loc -&gt; Doc
+</span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244951"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#DocLine"><span class="hs-identifier hs-type">DocLine</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679244959"><span class="annot"><span class="annottext">dump :: DocLine -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679244960"><span class="annot"><span class="annottext">DocLine
+</span><a href="#local-6989586621679244960"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Loc -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">DocLine
-</span><a href="#local-6989586621679162079"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">location</span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679244960"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">location</span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">DocLine
-</span><a href="#local-6989586621679162079"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">textLine</span><span>
+</span><a href="#local-6989586621679244960"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">textLine</span><span>
 </span><span id="line-78"></span><span>
-</span><span id="line-79"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162082"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Loc"><span class="hs-identifier hs-type">Loc</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-80"></span><span>  </span><span id="local-6989586621679162086"><span class="annot"><span class="annottext">dump :: Loc -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(FastString -&gt; Doc) -&gt; (RealSrcLoc -&gt; Doc) -&gt; Loc -&gt; Doc
+</span><span id="line-79"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244963"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Loc"><span class="hs-identifier hs-type">Loc</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-80"></span><span>  </span><span id="local-6989586621679244967"><span class="annot"><span class="annottext">dump :: Loc -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(FastString -&gt; Doc) -&gt; (RealSrcLoc -&gt; Doc) -&gt; Loc -&gt; Doc
 forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
 </span><span class="hs-identifier hs-var">either</span></span><span> </span><span class="annot"><span class="annottext">FastString -&gt; Doc
 </span><span class="hs-identifier hs-var">ftext</span></span><span> </span><span class="annot"><span class="annottext">RealSrcLoc -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span>
 </span><span id="line-81"></span><span>
-</span><span id="line-82"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162090"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealSrcLoc</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-83"></span><span>  </span><span id="local-6989586621679162094"><span class="annot"><span class="annottext">dump :: RealSrcLoc -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162095"><span class="annot"><span class="annottext">RealSrcLoc
-</span><a href="#local-6989586621679162095"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FastString -&gt; Doc
+</span><span id="line-82"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244971"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealSrcLoc</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679244975"><span class="annot"><span class="annottext">dump :: RealSrcLoc -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679244976"><span class="annot"><span class="annottext">RealSrcLoc
+</span><a href="#local-6989586621679244976"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FastString -&gt; Doc
 </span><span class="hs-identifier hs-var">ftext</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RealSrcLoc -&gt; FastString
 </span><span class="hs-identifier hs-var">srcLocFile</span></span><span> </span><span class="annot"><span class="annottext">RealSrcLoc
-</span><a href="#local-6989586621679162095"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679244976"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-84"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -229,7 +229,7 @@ forall a. Dump a =&gt; a -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RealSrcLoc -&gt; Int
 </span><span class="hs-identifier hs-var">srcLocLine</span></span><span> </span><span class="annot"><span class="annottext">RealSrcLoc
-</span><a href="#local-6989586621679162095"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679244976"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-85"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -238,62 +238,62 @@ forall a. Dump a =&gt; a -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RealSrcLoc -&gt; Int
 </span><span class="hs-identifier hs-var">srcLocCol</span></span><span> </span><span class="annot"><span class="annottext">RealSrcLoc
-</span><a href="#local-6989586621679162095"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679244976"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-86"></span><span>
-</span><span id="line-87"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162098"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#DocTests"><span class="hs-identifier hs-type">DocTests</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-88"></span><span>  </span><span id="local-6989586621679162120"><span class="annot"><span class="annottext">dump :: DocTests -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Group"><span class="hs-identifier hs-type">Group</span></a></span><span> </span><span id="local-6989586621679162122"><span class="annot"><span class="annottext">Entity
-</span><a href="#local-6989586621679162122"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679162123"><span class="annot"><span class="annottext">Loc
-</span><a href="#local-6989586621679162123"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679162124"><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162124"><span class="hs-identifier hs-var">tests</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679244979"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#DocTests"><span class="hs-identifier hs-type">DocTests</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679245001"><span class="annot"><span class="annottext">dump :: DocTests -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Group"><span class="hs-identifier hs-type">Group</span></a></span><span> </span><span id="local-6989586621679245003"><span class="annot"><span class="annottext">Entity
+</span><a href="#local-6989586621679245003"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679245004"><span class="annot"><span class="annottext">Loc
+</span><a href="#local-6989586621679245004"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679245005"><span class="annot"><span class="annottext">[DocTests]
+</span><a href="#local-6989586621679245005"><span class="hs-identifier hs-var">tests</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-89"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;group&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Entity -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">Entity
-</span><a href="#local-6989586621679162122"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679245003"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;,&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Loc -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">Loc
-</span><a href="#local-6989586621679162123"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679245004"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[DocTests] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162124"><span class="hs-identifier hs-var">tests</span></a></span><span>
-</span><span id="line-90"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestExample"><span class="hs-identifier hs-type">TestExample</span></a></span><span> </span><span id="local-6989586621679162126"><span class="annot"><span class="annottext">NonEmpty ExampleLine
-</span><a href="#local-6989586621679162126"><span class="hs-identifier hs-var">line</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245005"><span class="hs-identifier hs-var">tests</span></a></span><span>
+</span><span id="line-90"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestExample"><span class="hs-identifier hs-type">TestExample</span></a></span><span> </span><span id="local-6989586621679245007"><span class="annot"><span class="annottext">NonEmpty ExampleLine
+</span><a href="#local-6989586621679245007"><span class="hs-identifier hs-var">line</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;example:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">NonEmpty ExampleLine -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">NonEmpty ExampleLine
-</span><a href="#local-6989586621679162126"><span class="hs-identifier hs-var">line</span></a></span><span>
-</span><span id="line-91"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestProperty"><span class="hs-identifier hs-type">TestProperty</span></a></span><span> </span><span id="local-6989586621679162128"><span class="annot"><span class="annottext">NonEmpty DocLine
-</span><a href="#local-6989586621679162128"><span class="hs-identifier hs-var">prop</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245007"><span class="hs-identifier hs-var">line</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestProperty"><span class="hs-identifier hs-type">TestProperty</span></a></span><span> </span><span id="local-6989586621679245009"><span class="annot"><span class="annottext">NonEmpty DocLine
+</span><a href="#local-6989586621679245009"><span class="hs-identifier hs-var">prop</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;property:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">NonEmpty DocLine -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">NonEmpty DocLine
-</span><a href="#local-6989586621679162128"><span class="hs-identifier hs-var">prop</span></a></span><span>
-</span><span id="line-92"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestMultiline"><span class="hs-identifier hs-type">TestMultiline</span></a></span><span> </span><span id="local-6989586621679162130"><span class="annot"><span class="annottext">NonEmpty DocLine
-</span><a href="#local-6989586621679162130"><span class="hs-identifier hs-var">content</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245009"><span class="hs-identifier hs-var">prop</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestMultiline"><span class="hs-identifier hs-type">TestMultiline</span></a></span><span> </span><span id="local-6989586621679245011"><span class="annot"><span class="annottext">NonEmpty DocLine
+</span><a href="#local-6989586621679245011"><span class="hs-identifier hs-var">content</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;multiline:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">NonEmpty DocLine -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">NonEmpty DocLine
-</span><a href="#local-6989586621679162130"><span class="hs-identifier hs-var">content</span></a></span><span>
-</span><span id="line-93"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Capture"><span class="hs-identifier hs-type">Capture</span></a></span><span> </span><span id="local-6989586621679162132"><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162132"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span id="local-6989586621679162133"><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162133"><span class="hs-identifier hs-var">body</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245011"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Capture"><span class="hs-identifier hs-type">Capture</span></a></span><span> </span><span id="local-6989586621679245013"><span class="annot"><span class="annottext">CapturedContent
+</span><a href="#local-6989586621679245013"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span id="local-6989586621679245014"><span class="annot"><span class="annottext">[DocTests]
+</span><a href="#local-6989586621679245014"><span class="hs-identifier hs-var">body</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;capture:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Doc -&gt; Doc
@@ -301,17 +301,17 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-number">2</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CapturedContent -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162132"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679245013"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;body:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[DocTests] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162133"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-94"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestHook"><span class="hs-identifier hs-type">TestHook</span></a></span><span> </span><span id="local-6989586621679162135"><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162135"><span class="hs-identifier hs-var">hook</span></a></span></span><span> </span><span id="local-6989586621679162136"><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162136"><span class="hs-identifier hs-var">body</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245014"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#TestHook"><span class="hs-identifier hs-type">TestHook</span></a></span><span> </span><span id="local-6989586621679245016"><span class="annot"><span class="annottext">IOHook
+</span><a href="#local-6989586621679245016"><span class="hs-identifier hs-var">hook</span></a></span></span><span> </span><span id="local-6989586621679245017"><span class="annot"><span class="annottext">[DocTests]
+</span><a href="#local-6989586621679245017"><span class="hs-identifier hs-var">body</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;hook:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Doc -&gt; Doc
@@ -319,41 +319,41 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-number">2</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IOHook -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162135"><span class="hs-identifier hs-var">hook</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679245016"><span class="hs-identifier hs-var">hook</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;body:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[DocTests] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">[DocTests]
-</span><a href="#local-6989586621679162136"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-95"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Warning"><span class="hs-identifier hs-type">Warning</span></a></span><span> </span><span id="local-6989586621679162138"><span class="annot"><span class="annottext">Loc
-</span><a href="#local-6989586621679162138"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679162139"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679162139"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><a href="#local-6989586621679245017"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Warning"><span class="hs-identifier hs-type">Warning</span></a></span><span> </span><span id="local-6989586621679245019"><span class="annot"><span class="annottext">Loc
+</span><a href="#local-6989586621679245019"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679245020"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679245020"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;warning (&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Loc -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">Loc
-</span><a href="#local-6989586621679162138"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
+</span><a href="#local-6989586621679245019"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;): &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679162139"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679245020"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-96"></span><span>
-</span><span id="line-97"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162142"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#ExampleLine"><span class="hs-identifier hs-type">ExampleLine</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-98"></span><span>  </span><span id="local-6989586621679162148"><span class="annot"><span class="annottext">dump :: ExampleLine -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162149"><span class="annot"><span class="annottext">ExampleLine
-</span><a href="#local-6989586621679162149"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-97"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245023"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#ExampleLine"><span class="hs-identifier hs-type">ExampleLine</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-98"></span><span>  </span><span id="local-6989586621679245029"><span class="annot"><span class="annottext">dump :: ExampleLine -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679245030"><span class="annot"><span class="annottext">ExampleLine
+</span><a href="#local-6989586621679245030"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;program:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">DocLine -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">ExampleLine
-</span><a href="#local-6989586621679162149"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">programLine</span><span>
+</span><a href="#local-6989586621679245030"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">programLine</span><span>
 </span><span id="line-99"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Doc -&gt; [DocLine] -&gt; Doc
 forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
@@ -361,27 +361,27 @@ forall a. Dump a =&gt; Bool -&gt; Doc -&gt; [a] -&gt; Doc
 </span><span class="hs-identifier hs-var">True</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;expected:&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ExampleLine
-</span><a href="#local-6989586621679162149"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">expectedOutput</span><span>
+</span><a href="#local-6989586621679245030"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">expectedOutput</span><span>
 </span><span id="line-100"></span><span>
-</span><span id="line-101"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162152"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Entity"><span class="hs-identifier hs-type">Entity</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-102"></span><span>  </span><span id="local-6989586621679162156"><span class="annot"><span class="annottext">dump :: Entity -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-101"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245033"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#Entity"><span class="hs-identifier hs-type">Entity</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-102"></span><span>  </span><span id="local-6989586621679245037"><span class="annot"><span class="annottext">dump :: Entity -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; (Entity -&gt; String) -&gt; Entity -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Entity -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span>
 </span><span id="line-103"></span><span>
-</span><span id="line-104"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162159"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#CapturedContent"><span class="hs-identifier hs-type">CapturedContent</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-105"></span><span>  </span><span id="local-6989586621679162169"><span class="annot"><span class="annottext">dump :: CapturedContent -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162170"><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162170"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-104"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245040"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#CapturedContent"><span class="hs-identifier hs-type">CapturedContent</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679245050"><span class="annot"><span class="annottext">dump :: CapturedContent -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679245051"><span class="annot"><span class="annottext">CapturedContent
+</span><a href="#local-6989586621679245051"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;variableName:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162170"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variableName</span><span>
+</span><a href="#local-6989586621679245051"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variableName</span><span>
 </span><span id="line-106"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -389,7 +389,7 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">CaptureMethod -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162170"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">captureMethod</span><span>
+</span><a href="#local-6989586621679245051"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">captureMethod</span><span>
 </span><span id="line-107"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -397,11 +397,11 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">CapturedContent
-</span><a href="#local-6989586621679162170"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variableName</span><span>
+</span><a href="#local-6989586621679245051"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variableName</span><span>
 </span><span id="line-108"></span><span>
-</span><span id="line-109"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162173"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#CaptureMethod"><span class="hs-identifier hs-type">CaptureMethod</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-110"></span><span>  </span><span id="local-6989586621679162177"><span class="annot"><span class="annottext">dump :: CaptureMethod -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-109"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245054"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#CaptureMethod"><span class="hs-identifier hs-type">CaptureMethod</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621679245058"><span class="annot"><span class="annottext">dump :: CaptureMethod -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc)
 -&gt; (CaptureMethod -&gt; String) -&gt; CaptureMethod -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -409,16 +409,16 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span>
 </span><span id="line-111"></span><span>
-</span><span id="line-112"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162180"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#IOHook"><span class="hs-identifier hs-type">IOHook</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-113"></span><span>  </span><span id="local-6989586621679162192"><span class="annot"><span class="annottext">dump :: IOHook -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679162193"><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162193"><span class="hs-identifier hs-var">hook</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-112"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245061"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#IOHook"><span class="hs-identifier hs-type">IOHook</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-113"></span><span>  </span><span id="local-6989586621679245073"><span class="annot"><span class="annottext">dump :: IOHook -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span id="local-6989586621679245074"><span class="annot"><span class="annottext">IOHook
+</span><a href="#local-6989586621679245074"><span class="hs-identifier hs-var">hook</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;flavour:&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">HookFlavour -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162193"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">flavour</span><span>
+</span><a href="#local-6989586621679245074"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">flavour</span><span>
 </span><span id="line-114"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -426,7 +426,7 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162193"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variables</span><span>
+</span><a href="#local-6989586621679245074"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">variables</span><span>
 </span><span id="line-115"></span><span>    </span><span class="annot"><span class="annottext">Doc -&gt; Doc -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -434,11 +434,11 @@ forall a. Dump a =&gt; a -&gt; Doc
 </span><span class="hs-operator hs-var">$$</span></span><span> </span><span class="annot"><span class="annottext">NonEmpty DocLine -&gt; Doc
 forall a. Dump a =&gt; a -&gt; Doc
 </span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var">dump</span></a></span><span> </span><span class="annot"><span class="annottext">IOHook
-</span><a href="#local-6989586621679162193"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">setupCode</span><span>
+</span><a href="#local-6989586621679245074"><span class="hs-identifier hs-var">hook</span></a></span><span class="hs-operator">.</span><span class="hs-identifier">setupCode</span><span>
 </span><span id="line-116"></span><span>
-</span><span id="line-117"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679162196"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#HookFlavour"><span class="hs-identifier hs-type">HookFlavour</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-118"></span><span>  </span><span id="local-6989586621679162200"><span class="annot"><span class="annottext">dump :: HookFlavour -&gt; Doc
-</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
+</span><span id="line-117"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679245077"><span class="annot"><a href="Test.DocTest.Driver.Extract.Dump.html#Dump"><span class="hs-identifier hs-type">Dump</span></a></span><span> </span><span class="annot"><a href="Test.DocTest.Driver.Extract.Ast.html#HookFlavour"><span class="hs-identifier hs-type">HookFlavour</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-118"></span><span>  </span><span id="local-6989586621679245081"><span class="annot"><span class="annottext">dump :: HookFlavour -&gt; Doc
+</span><a href="Test.DocTest.Driver.Extract.Dump.html#dump"><span class="hs-identifier hs-var hs-var hs-var">dump</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc
 </span><span class="hs-identifier hs-var">text</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; (HookFlavour -&gt; String) -&gt; HookFlavour -&gt; Doc
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">HookFlavour -&gt; String

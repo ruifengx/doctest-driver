@@ -15,6 +15,36 @@
 --   shown in the Hackage documentation may differ from what is actually
 --   available on your system.
 module System.Directory.Internal
+data FileType
+File :: FileType
+
+-- | POSIX: either file or directory link; Windows: file link
+SymbolicLink :: FileType
+Directory :: FileType
+
+-- | Windows only: directory link
+DirectoryLink :: FileType
+
+-- | Fallibly converts String to OsString. Only intended to be used on
+--   literals.
+os :: String -> OsString
+
+-- | Newtype representing short operating system specific strings.
+--   
+--   Internally this is either <a>WindowsString</a> or <a>PosixString</a>,
+--   depending on the platform. Both use unpinned <tt>ShortByteString</tt>
+--   for efficiency.
+--   
+--   The constructor is only exported via
+--   <a>System.OsString.Internal.Types</a>, since dealing with the
+--   internals isn't generally recommended, but supported in case you need
+--   to write platform specific code.
+data OsString
+
+-- | Type representing filenames/pathnames.
+--   
+--   This type doesn't add any guarantees over <a>OsString</a>.
+type OsPath = OsString
 
 -- | Special directories for storing user-specific application data,
 --   configuration, and cache files, as specified by the <a>XDG Base
@@ -85,25 +115,12 @@ Permissions :: Bool -> Bool -> Bool -> Bool -> Permissions
 [searchable] :: Permissions -> Bool
 
 -- | A generator with side-effects.
-newtype ListT m a
-ListT :: m (Maybe (a, ListT m a)) -> ListT m a
-[unListT] :: ListT m a -> m (Maybe (a, ListT m a))
-data FileType
-File :: FileType
-
--- | POSIX: either file or directory link; Windows: file link
-SymbolicLink :: FileType
-Directory :: FileType
-
--- | Windows only: directory link
-DirectoryLink :: FileType
-
--- | Fallibly converts String to OsString. Only intended to be used on
---   literals.
-os :: String -> OsString
-emptyListT :: Applicative m => ListT m a
+newtype ListT (m :: Type -> Type) a
+ListT :: m (Maybe (a, ListT m a)) -> ListT (m :: Type -> Type) a
+[unListT] :: ListT (m :: Type -> Type) a -> m (Maybe (a, ListT m a))
+emptyListT :: forall (m :: Type -> Type) a. Applicative m => ListT m a
 maybeToListT :: Applicative m => m (Maybe a) -> ListT m a
-listToListT :: Applicative m => [a] -> ListT m a
+listToListT :: forall (m :: Type -> Type) a. Applicative m => [a] -> ListT m a
 liftJoinListT :: Monad m => m (ListT m a) -> ListT m a
 listTHead :: Functor m => ListT m a -> m (Maybe a)
 listTToList :: Monad m => ListT m a -> m [a]
@@ -166,23 +183,9 @@ withBinaryHandle :: IO Handle -> (Handle -> IO r) -> IO r
 
 -- | Copy data from one handle to another until end of file.
 copyHandleData :: Handle -> Handle -> IO ()
-
--- | Type representing filenames/pathnames.
---   
---   This type doesn't add any guarantees over <a>OsString</a>.
-type OsPath = OsString
-
--- | Newtype representing short operating system specific strings.
---   
---   Internally this is either <a>WindowsString</a> or <a>PosixString</a>,
---   depending on the platform. Both use unpinned <tt>ShortByteString</tt>
---   for efficiency.
---   
---   The constructor is only exported via
---   <a>System.OsString.Internal.Types</a>, since dealing with the
---   internals isn't generally recommended, but supported in case you need
---   to write platform specific code.
-data () => OsString
+setFileMode :: OsPath -> Mode -> IO ()
+createSymbolicLink :: Bool -> OsPath -> OsPath -> IO ()
+readSymbolicLink :: OsPath -> IO OsPath
 createDirectoryInternal :: OsPath -> IO ()
 removePathInternal :: Bool -> OsPath -> IO ()
 renamePathInternal :: OsPath -> OsPath -> IO ()
@@ -197,6 +200,9 @@ withRealpath :: CString -> (CString -> IO a) -> IO a
 realPath :: OsPath -> IO OsPath
 canonicalizePathSimplify :: OsPath -> IO OsPath
 findExecutablesLazyInternal :: ([OsPath] -> OsString -> ListT IO OsPath) -> OsString -> ListT IO OsPath
+
+-- | Get the contents of the <tt>PATH</tt> environment variable.
+getPath :: IO [OsPath]
 exeExtensionInternal :: OsString
 getDirectoryContentsInternal :: OsPath -> IO [OsPath]
 getCurrentDirectoryInternal :: IO OsPath
@@ -215,8 +221,6 @@ prependCurrentDirectory :: OsPath -> IO OsPath
 setCurrentDirectoryInternal :: OsPath -> IO ()
 linkToDirectoryIsDirectory :: Bool
 createHardLink :: OsPath -> OsPath -> IO ()
-createSymbolicLink :: Bool -> OsPath -> OsPath -> IO ()
-readSymbolicLink :: OsPath -> IO OsPath
 type Metadata = FileStatus
 getSymbolicLinkMetadata :: OsPath -> IO Metadata
 getFileMetadata :: OsPath -> IO Metadata
@@ -229,7 +233,6 @@ modeFromMetadata :: Metadata -> Mode
 allWriteMode :: FileMode
 hasWriteMode :: Mode -> Bool
 setWriteMode :: Bool -> Mode -> Mode
-setFileMode :: OsPath -> Mode -> IO ()
 setFilePermissions :: OsPath -> Mode -> IO ()
 getAccessPermissions :: OsPath -> IO Permissions
 setAccessPermissions :: OsPath -> Permissions -> IO ()
@@ -249,9 +252,6 @@ copyFileWithMetadataInternal :: (Metadata -> OsPath -> IO ()) -> (Metadata -> Os
 setTimes :: OsPath -> (Maybe POSIXTime, Maybe POSIXTime) -> IO ()
 lookupEnvOs :: OsString -> IO (Maybe OsString)
 getEnvOs :: OsString -> IO OsString
-
--- | Get the contents of the <tt>PATH</tt> environment variable.
-getPath :: IO [OsPath]
 
 -- | $HOME is preferred, because the user has control over it. However,
 --   POSIX doesn't define it as a mandatory variable, so fall back to
