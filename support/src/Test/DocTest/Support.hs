@@ -11,8 +11,8 @@ module Test.DocTest.Support
   -- | Here we demonstrate features of @doctest-driver@. Readers of this documentation are
   -- encouraged to also refer to the source code of this module as an illustration.
 
-  -- * Examples
-  -- | @doctest-driver@ supports testing Haddock examples.
+  -- * Basic Tests
+  -- | @doctest-driver@ supports testing Haddock examples and properties.
 
   -- ** REPL (Read-Eval-Print-Loop) Style Examples
   -- $REPL-Style-Examples
@@ -348,7 +348,7 @@ If your specific use case requires capturing text in encodings other than UTF-8,
 -- Right ()
 -- >>> try @HUnitFailure ((123 :: Int) `shouldMatch` "000")
 -- Left (HUnitFailure (Just (SrcLoc {...})) (ExpectedButGot Nothing "000" "123"))
--- >>> try @HUnitFailure ("测试«αβ»" `shouldMatch` "\"\\27979\\35797\\171\\945\\946\\187\"")
+-- >>> try @HUnitFailure ("测试«αβ»" `shouldMatch` show "测试«αβ»")
 -- Right ()
 --
 -- Advanced usage: @...@ for inline and multiline wildcard.
