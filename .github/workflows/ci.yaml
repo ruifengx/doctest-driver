@@ -11,7 +11,7 @@ jobs:
     - uses: haskell-actions/setup@v2
       id: setup
       with:
-        ghc-version: '9.6.6'
+        ghc-version: '9.10.2'
         cabal-version: 'latest'
         cabal-update: true
     - name: Generate Build Plan
