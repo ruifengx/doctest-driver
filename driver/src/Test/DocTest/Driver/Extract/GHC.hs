@@ -47,7 +47,8 @@ parseModules opts paths = GHC.runGhc (Just GHC.libdir) do
     . filterToposortToModules
     . flip (GHC.topSortModuleGraph False) Nothing
     <$> GHC.depanal [] False
-  mapM GHC.parseModule modules
+  let isTarget m = maybe False (`elem` paths) m.ms_location.ml_hs_file
+  mapM GHC.parseModule (filter isTarget modules)
 
 handleOptions :: [String] -> Ghc ()
 handleOptions opts = do
