@@ -10,9 +10,9 @@ module Test.DocTest.Driver.Extract.GHC
   ) where
 
 import Control.Monad (forM, unless)
-import Data.List (isSuffixOf)
+import Data.List (isPrefixOf)
 import System.Directory (doesDirectoryExist, listDirectory)
-import System.FilePath ((</>))
+import System.FilePath (isExtensionOf, takeFileName, (</>))
 
 import GHC qualified
 import GHC.Paths qualified as GHC
@@ -27,7 +27,15 @@ import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
 parseModulesIn :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
 parseModulesIn opts dirs = do
   paths <- concat <$> traverse recursiveListDirectory dirs
-  parseModules opts (filter (".hs" `isSuffixOf`) paths)
+  parseModules opts
+    [ p
+    | p <- paths
+    , "hs" `isExtensionOf` p
+    -- filter out auto-generated magic Cabal modules
+    , let file = takeFileName p
+    , not ("PackageInfo_" `isPrefixOf` file)
+    , not ("Paths_" `isPrefixOf` file)
+    ]
 
 -- | Parse all the files in the given list.
 parseModules :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
