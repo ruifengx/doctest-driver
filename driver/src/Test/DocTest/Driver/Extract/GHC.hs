@@ -27,15 +27,18 @@ import GHC.Utils.Panic (GhcException (UsageError), throwGhcException)
 parseModulesIn :: [String] -> [FilePath] -> IO [GHC.ParsedModule]
 parseModulesIn opts dirs = do
   paths <- concat <$> traverse recursiveListDirectory dirs
-  parseModules opts
-    [ p
-    | p <- paths
-    , "hs" `isExtensionOf` p
-    -- filter out auto-generated magic Cabal modules
-    , let file = takeFileName p
-    , not ("PackageInfo_" `isPrefixOf` file)
-    , not ("Paths_" `isPrefixOf` file)
-    ]
+  appendFile "diagnostics.txt" (unlines ("all paths:" : paths))
+  let filtered =
+        [ p
+        | p <- paths
+        , "hs" `isExtensionOf` p
+        -- filter out auto-generated magic Cabal modules
+        , let file = takeFileName p
+        , not ("PackageInfo_" `isPrefixOf` file)
+        , not ("Paths_" `isPrefixOf` file)
+        ]
+  appendFile "diagnostics.txt" (unlines ("filtered:" : paths))
+  parseModules opts filtered
 
 -- | Parse all the files in the given list.
 parseModules :: [String] -> [FilePath] -> IO [GHC.ParsedModule]

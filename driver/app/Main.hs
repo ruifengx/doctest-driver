@@ -15,6 +15,7 @@ main = do
       tests <- extractDocTests [] sourceDirs
       printDoc (dump tests)
     Right args -> do
+      appendFile "diagnostics.txt" (unlines ("source directories:" : args.sourceDirs))
       tests <- extractDocTests args.ghcOptions args.sourceDirs
       modulePaths <- codeGen args.targetDir tests
       traverse_ putStrLn modulePaths
