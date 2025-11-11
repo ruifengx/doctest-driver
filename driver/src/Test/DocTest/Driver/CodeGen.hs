@@ -294,10 +294,10 @@ genMainDoc ms = vcat
   , importList
   , emptyText
   , "main :: IO ()"
-  , "main = hspec $ do"
-  , nest 2 testList
+  , "main = hspec $" <+> testMain
   ]
   where importList = vcat (map ("import qualified " <>) modulePaths)
+        testMain = if null modulePaths then "pure ()" else "do" $$ nest 2 testList
         testList = vcat (map (<> ".spec") modulePaths)
         modulePaths = map modulePath ms
         modulePath m = "DocTests." <> text (intercalate "." m.modulePath)
